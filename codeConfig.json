@@ -1,0 +1,69 @@
+[
+    {
+        "className": "Git",
+        "constructorConfigs": [
+            {
+                "parameterTypes": [],
+                "values": []
+            }
+        ],
+        "methodConfigs": [
+            {
+                "methodName": "init",
+                "parameters": [],
+                "values": []
+            },
+            {
+                "methodName": "addBlob",
+                "parameters": [
+                    "String"
+                ],
+                "values": [
+                    "fileName"
+                ]
+            },
+            {
+                "methodName": "removeBlob",
+                "parameters": [
+                    "String"
+                ],
+                "values": [
+                    "fileName"
+                ]
+            }
+        ]
+    },
+    {
+        "className": "Blob",
+        "constructorConfigs": [
+            {
+                "parameterTypes": [
+                    "String"
+                ],
+                "values": [
+                    "inputFile"
+                ]
+            }
+        ],
+        "methodConfigs": [
+            {
+                "methodName": "write",
+                "parameters": [
+                    "String, StringBuilder"
+                ],
+                "values": [
+                    "hashed, inside"
+                ]
+            },
+            {
+                "methodName": "generateSHA",
+                "parameters": [
+                    "String"
+                ],
+                "values": [
+                    "input"
+                ]
+            }
+        ]
+    }
+]
