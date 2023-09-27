@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 public class CommitTest {
     private Commit firstCommit;
     private Commit secondCommit;
-    static String pathToWorkSpace = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\BlobandIndexRonanUpdated";
+    static String pathToWorkSpace = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment";
 
     @BeforeEach
     void setUp() throws Exception {

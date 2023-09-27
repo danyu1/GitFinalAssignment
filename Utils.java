@@ -1,7 +1,7 @@
 import java.io.*;
 
 public class Utils {
-    static String pathToWorkSpace = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\BlobandIndexRonanUpdated\\";
+    static String pathToWorkSpace = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\";
 
     public static void writeStringToFile(String filename, String str) throws FileNotFoundException {
         PrintWriter pw = new PrintWriter(filename);

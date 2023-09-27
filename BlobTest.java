@@ -18,7 +18,7 @@ public class BlobTest {
     // tested because its functionality was tested in testBlob (). write method is
     // only a helper method that creates the hashed file with its contents in the
     // objects folder (testBlob calls write method within itself)
-    static String pathToWorkSpace = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\BlobandIndexRonanUpdated\\";
+    static String pathToWorkSpace = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\";
 
     @BeforeAll
     static void setUpBefore() throws Exception {

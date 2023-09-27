@@ -6,7 +6,7 @@ import java.util.*;
 public class Index {
 
     private HashMap<String, String> files = new HashMap<>();
-    private static String path = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\BlobandIndexRonanUpdated";
+    private static String path = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment";
 
     public Index() throws IOException {
         init();

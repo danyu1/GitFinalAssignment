@@ -18,7 +18,7 @@ public class Commit {
     String summary;
 
     StringBuilder toPrint;
-    static String pathToWorkSpace = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\BlobandIndexRonanUpdated";
+    static String pathToWorkSpace = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment";
     String pathToCommit;
 
     // constructor for any commit after the first ever commit
