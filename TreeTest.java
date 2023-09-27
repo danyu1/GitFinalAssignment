@@ -1,3 +1,4 @@
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -11,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -52,8 +54,8 @@ public class TreeTest {
         tree.add(blob1ToAdd);
         tree.add(blob2ToAdd);
         List<String> entries = tree.getEntries();
-        assertTrue(entries.contains(blob1ToAdd));
-        assertTrue(entries.contains(blob2ToAdd));
+        Assertions.assertTrue(entries.contains(blob1ToAdd));
+        Assertions.assertTrue(entries.contains(blob2ToAdd));
         tree.remove(blob1ToAdd);
         tree.remove(blob2ToAdd);
     }
@@ -135,7 +137,33 @@ public class TreeTest {
 
     @Test
     @DisplayName("Test add directory without nested folders.")
-    void testAddDirectory1() {
+    void testAddDirectory1() throws Exception {
+        File folder1 = new File("C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\test1");
+        folder1.mkdir();
+        File file1 = new File(folder1.getPath() + "\\examplefile1.txt");
+        File file2 = new File(folder1.getPath() + "\\examplefile2.txt");
+        File file3 = new File(folder1.getPath() + "\\examplefile3.txt");
+        PrintWriter pw1 = new PrintWriter(file1);
+        PrintWriter pw2 = new PrintWriter(file2);
+        PrintWriter pw3 = new PrintWriter(file3);
+        pw1.print("new contents for file one");
+        pw2.print("new contents for file two");
+        pw3.print("new contents for file three");
+        pw1.close();
+        pw2.close();
+        pw3.close();
+
+        Tree tree = new Tree();
+        tree.addDirectory(folder1.getPath());
+
+        assertEquals("43b30f483e15a64a6afe4096f805128407574940", tree.getDirectorySha());
+
+        Files.delete(Paths.get(file1.getPath()));
+        Files.delete(Paths.get(file2.getPath()));
+        Files.delete(Paths.get(file3.getPath()));
+        Files.delete(Paths.get(folder1.getPath()));
+        Files.deleteIfExists(Paths.get(
+                "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\objects\\43b30f483e15a64a6afe4096f805128407574940"));
 
     }
 

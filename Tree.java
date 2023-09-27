@@ -18,84 +18,6 @@ public class Tree {
         entries.remove(entry);
     }
 
-    // // // due to trash programming addDirectory gets complicated, comments added
-    // to
-    // // // help with readibility
-    // public String addDirectory(String directoryPath) throws Exception {
-    // Tree tree = new Tree();
-    // File directoryFile = new File(directoryPath);
-    // Path p = Paths.get(directoryPath);
-    // // edge case when the passed directory is empty
-    // if (Files.isDirectory(p) && (directoryFile.listFiles().length == 0)) {
-    // tree.add("tree : " + Blob.generateSHA(directoryFile.getName()) + " : " +
-    // directoryFile.getName());
-    // } else if (Files.isDirectory(p)) {
-    // File[] filesInDirectory = directoryFile.listFiles();
-    // for (File currentFile : filesInDirectory) {
-    // // current file is also a directory enter following code
-    // if (currentFile.isDirectory()) {
-    // addDirectory(currentFile.getPath());
-    // Tree childTree = new Tree();
-    // Path pathToSubDirectory = Paths.get(currentFile.getPath());
-    // File subDirectoryFile = new File(pathToSubDirectory.toString());
-    // File[] filesInSubDirectory = subDirectoryFile.listFiles();
-    // for (File currentSubFile : filesInSubDirectory) {
-    // // check if the currentSubFile is not a directory
-    // if (!currentSubFile.isDirectory()) {
-    // BufferedReader br = new BufferedReader(new FileReader(currentSubFile));
-    // StringBuilder subFileContents = new StringBuilder("");
-    // while (br.ready())
-    // subFileContents.append(br.readLine());
-
-    // childTree.add("Blob : " + Blob.generateSHA(subFileContents.toString()) + " :
-    // "
-    // + currentSubFile.getName());
-    // br.close();
-    // // if the currentSubFile is a directory hash it with only its name
-    // } else {
-    // childTree.add("tree : " + Blob.generateSHA(currentSubFile.getName()) + " : "
-    // + currentSubFile.getName());
-    // }
-    // }
-    // // generate the child tree as its own blob
-    // childTree.generateBlob();
-    // // add the hash of the child tree to the parent tree
-    // tree.add("tree : " + childTree.getSha1() + " : " +
-    // subDirectoryFile.getName());
-    // }
-
-    // // current file is not a directory within the passed directory
-    // else {
-    // BufferedReader br = new BufferedReader(new FileReader(currentFile));
-    // StringBuilder fileContents = new StringBuilder("");
-    // while (br.ready())
-    // fileContents.append(br.readLine());
-
-    // tree.add("Blob : " + Blob.generateSHA(fileContents.toString()) + " : " +
-    // currentFile.getName());
-    // br.close();
-    // }
-    // }
-    // // edge case when the passed "directory" is just a file
-    // } else if (Files.exists(p) && !Files.isDirectory(p)) {
-    // BufferedReader br = new BufferedReader(new FileReader(directoryFile));
-    // StringBuilder fileContents = new StringBuilder("");
-    // while (br.ready())
-    // fileContents.append(br.readLine());
-
-    // tree.add("Blob : " + Blob.generateSHA(fileContents.toString()) + " : " +
-    // directoryFile.getName());
-    // br.close();
-    // } else {
-    // throw new Exception("directory path is not valid, a possible solution is to
-    // use the absolute path.");
-    // }
-    // // generate the parent tree as a blob
-    // tree.generateBlob();
-    // this.directorySha1 = tree.getSha1();
-    // return directorySha1;
-    // }
-
     public String addDirectory(String directoryPath) throws Exception {
         Tree childTree = new Tree();
         File directoryFile = new File(directoryPath);
@@ -137,6 +59,10 @@ public class Tree {
             sb.append(entry).append("\n");
         }
         Files.write(pathToTreeFile, sb.toString().getBytes());
+    }
+
+    public String getDirectorySha() {
+        return this.directorySha1;
     }
 
     // "save" method
