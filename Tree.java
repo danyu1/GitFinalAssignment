@@ -122,7 +122,7 @@ public class Tree {
                     "You did not provide a valid path to a directory. Try using the absolute path if you didn't already.");
         }
         childTree.generateBlob();
-        this.add("tree : " + getSha1() + " : " + directoryFile.getName());
+        add("tree : " + childTree.getSha1() + " : " + directoryFile.getName());
         this.directorySha1 = childTree.getSha1();
         updateTreeFile();
         return this.directorySha1;
