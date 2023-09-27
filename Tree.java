@@ -202,6 +202,10 @@ public class Tree {
         System.out.println("Tree SHA1: " + tree.getSha1());
 
         tree.addDirectory("C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\testDirectory1");
+        File parentDirectoryFile = new File(
+                "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\objects\\fb360f9c09ac8c5edb2f18be5de4e80ea4c430d0");
+        System.out.println(parentDirectoryFile.exists());
+        System.out.println(parentDirectoryFile.toString());
 
     }
 }
