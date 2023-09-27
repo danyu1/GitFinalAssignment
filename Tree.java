@@ -18,58 +18,125 @@ public class Tree {
         entries.remove(entry);
     }
 
+    // // // due to trash programming addDirectory gets complicated, comments added
+    // to
+    // // // help with readibility
+    // public String addDirectory(String directoryPath) throws Exception {
+    // Tree tree = new Tree();
+    // File directoryFile = new File(directoryPath);
+    // Path p = Paths.get(directoryPath);
+    // // edge case when the passed directory is empty
+    // if (Files.isDirectory(p) && (directoryFile.listFiles().length == 0)) {
+    // tree.add("tree : " + Blob.generateSHA(directoryFile.getName()) + " : " +
+    // directoryFile.getName());
+    // } else if (Files.isDirectory(p)) {
+    // File[] filesInDirectory = directoryFile.listFiles();
+    // for (File currentFile : filesInDirectory) {
+    // // current file is also a directory enter following code
+    // if (currentFile.isDirectory()) {
+    // addDirectory(currentFile.getPath());
+    // Tree childTree = new Tree();
+    // Path pathToSubDirectory = Paths.get(currentFile.getPath());
+    // File subDirectoryFile = new File(pathToSubDirectory.toString());
+    // File[] filesInSubDirectory = subDirectoryFile.listFiles();
+    // for (File currentSubFile : filesInSubDirectory) {
+    // // check if the currentSubFile is not a directory
+    // if (!currentSubFile.isDirectory()) {
+    // BufferedReader br = new BufferedReader(new FileReader(currentSubFile));
+    // StringBuilder subFileContents = new StringBuilder("");
+    // while (br.ready())
+    // subFileContents.append(br.readLine());
+
+    // childTree.add("Blob : " + Blob.generateSHA(subFileContents.toString()) + " :
+    // "
+    // + currentSubFile.getName());
+    // br.close();
+    // // if the currentSubFile is a directory hash it with only its name
+    // } else {
+    // childTree.add("tree : " + Blob.generateSHA(currentSubFile.getName()) + " : "
+    // + currentSubFile.getName());
+    // }
+    // }
+    // // generate the child tree as its own blob
+    // childTree.generateBlob();
+    // // add the hash of the child tree to the parent tree
+    // tree.add("tree : " + childTree.getSha1() + " : " +
+    // subDirectoryFile.getName());
+    // }
+
+    // // current file is not a directory within the passed directory
+    // else {
+    // BufferedReader br = new BufferedReader(new FileReader(currentFile));
+    // StringBuilder fileContents = new StringBuilder("");
+    // while (br.ready())
+    // fileContents.append(br.readLine());
+
+    // tree.add("Blob : " + Blob.generateSHA(fileContents.toString()) + " : " +
+    // currentFile.getName());
+    // br.close();
+    // }
+    // }
+    // // edge case when the passed "directory" is just a file
+    // } else if (Files.exists(p) && !Files.isDirectory(p)) {
+    // BufferedReader br = new BufferedReader(new FileReader(directoryFile));
+    // StringBuilder fileContents = new StringBuilder("");
+    // while (br.ready())
+    // fileContents.append(br.readLine());
+
+    // tree.add("Blob : " + Blob.generateSHA(fileContents.toString()) + " : " +
+    // directoryFile.getName());
+    // br.close();
+    // } else {
+    // throw new Exception("directory path is not valid, a possible solution is to
+    // use the absolute path.");
+    // }
+    // // generate the parent tree as a blob
+    // tree.generateBlob();
+    // this.directorySha1 = tree.getSha1();
+    // return directorySha1;
+    // }
+
     public String addDirectory(String directoryPath) throws Exception {
-        Tree tree = new Tree();
+        Tree childTree = new Tree();
         File directoryFile = new File(directoryPath);
         Path p = Paths.get(directoryPath);
         if (Files.isDirectory(p)) {
             File[] filesInDirectory = directoryFile.listFiles();
-            for (File currentFile : filesInDirectory) {
-                // current file is also a directory call addDirectory again
-                if (currentFile.isDirectory()) {
-                    // at this point you must create a new tree instance called childTree and use
-                    // the previous tree to create an entry in the form "Tree: <Sha1> : folderName"
-                    Tree childTree = new Tree();
-                    Path pathToSubDirectory = Paths.get(currentFile.getPath());
-                    File subDirectoryFile = new File(pathToSubDirectory.toString());
-                    File[] filesInSubDirectory = subDirectoryFile.listFiles();
-                    for (File currentSubFile : filesInSubDirectory) {
-                        if (currentSubFile.isDirectory())
-                            addDirectory(currentSubFile.getPath());
-                        else {
-                            BufferedReader br = new BufferedReader(new FileReader(currentSubFile));
-                            StringBuilder subFileContents = new StringBuilder("");
-                            while (br.ready())
-                                subFileContents.append(br.readLine());
-
-                            childTree.add("Blob : " + Blob.generateSHA(subFileContents.toString()));
-                            br.close();
-                        }
+            if (filesInDirectory.length != 0) {
+                for (File currentFile : filesInDirectory) {
+                    if (currentFile.isDirectory()) {
+                        addDirectory(currentFile.getPath());
+                        StringBuilder sb = new StringBuilder("");
+                        File[] filesInSubDirectory = currentFile.listFiles();
+                        for (File fileNames : filesInSubDirectory)
+                            sb.append(fileNames.getName());
+                        childTree.add("tree : " + Blob.generateSHA(sb.toString()) + " : " + currentFile.getName());
+                    } else {
+                        childTree.add(
+                                "Blob : " + Blob.generateSHA(currentFile.getName()) + " : " + currentFile.getName());
                     }
-                    childTree.generateBlob();
-                    tree.add("tree : " + childTree.getSha1() + " : " + subDirectoryFile.getName());
-                }
-                // current file is not a directory
-                else {
-                    BufferedReader br = new BufferedReader(new FileReader(currentFile));
-                    StringBuilder fileContents = new StringBuilder("");
-                    while (br.ready())
-                        fileContents.append(br.readLine());
-
-                    tree.add("Blob : " + Blob.generateSHA(fileContents.toString()) + " : " + currentFile.getName());
-                    br.close();
                 }
             }
         } else {
-            throw new Exception("directory path is not valid, a possible solution is to use the absolute path.");
+            throw new Exception(
+                    "You did not provide a valid path to a directory. Try using the absolute path if you didn't already.");
         }
-        tree.generateBlob();
-        this.directorySha1 = tree.getSha1();
-        return directorySha1;
+        childTree.generateBlob();
+        this.add("tree : " + getSha1() + " : " + directoryFile.getName());
+        this.directorySha1 = childTree.getSha1();
+        updateTreeFile();
+        return this.directorySha1;
     }
 
-    public String getSHA1OfDirectory() {
-        return this.directorySha1;
+    // in this case "tree" file is called index due to previous choices made in
+    // other classes
+    public void updateTreeFile() throws Exception {
+        Path pathToTreeFile = Paths.get("C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\index");
+        StringBuilder sb = new StringBuilder("");
+        for (String entry : entries) {
+            sb.append(entry).append("\n");
+        }
+        Files.write(pathToTreeFile, sb.toString().getBytes());
     }
 
     // "save" method
@@ -77,13 +144,16 @@ public class Tree {
 
         // Create a StringBuilder to concatenate all entries
         StringBuilder content = new StringBuilder();
+        StringBuilder toHash = new StringBuilder();
         for (String entry : entries) {
+            int lastColonIndex = entry.lastIndexOf(":");
+            toHash.append(entry.substring(lastColonIndex + 1).trim());
             content.append(entry).append("\n");
         }
 
         // Calculate the SHA-1 hash of the content
         MessageDigest digest = MessageDigest.getInstance("SHA-1");
-        byte[] hashBytes = digest.digest(content.toString().getBytes());
+        byte[] hashBytes = digest.digest(toHash.toString().getBytes());
         sha1 = byteArrayToHex(hashBytes);
 
         // Create the blob file in the 'objects' folder
@@ -116,7 +186,7 @@ public class Tree {
         return sb.toString();
     }
 
-    public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
+    public static void main(String[] args) throws Exception {
         Tree tree = new Tree();
 
         // Add entries to the tree
@@ -131,12 +201,7 @@ public class Tree {
 
         System.out.println("Tree SHA1: " + tree.getSha1());
 
-        // test how listFiles () method functions
-        File directoryFile = new File(
-                "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\testDirectory");
-        File[] lists = directoryFile.listFiles();
-        for (File file : lists) {
-            System.out.println(file.getName());
-        }
+        tree.addDirectory("C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\testDirectory1");
+
     }
 }

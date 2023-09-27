@@ -132,7 +132,7 @@ public class Commit {
     }
 
     public static void main(String[] args) throws Exception {
-        Commit c1 = new Commit("paco", "first ever commit");
+        Commit c1 = new Commit("paco", "initial commit");
         Commit c2 = new Commit(c1.generateSha1(), "paco", "second ever commit");
         c1.addToTree("test.txt");
         c1.save();

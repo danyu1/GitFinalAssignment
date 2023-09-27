@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class TreeTest {
@@ -130,5 +131,17 @@ public class TreeTest {
                 "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\BlobandIndexRonanUpdated\\objects\\04ee905523810ffee3e5fe7f73e2825844674bbb");
         Files.delete(p1);
         tree.remove(blob2ToAdd);
+    }
+
+    @Test
+    @DisplayName("Test add directory without nested folders.")
+    void testAddDirectory1() {
+
+    }
+
+    @Test
+    @DisplayName("Test add directory with nested folders and files.")
+    void testAddDirectory2() {
+
     }
 }
