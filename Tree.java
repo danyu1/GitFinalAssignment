@@ -19,6 +19,7 @@ public class Tree {
     }
 
     public String addDirectory(String directoryPath) throws Exception {
+        Tree tree = new Tree();
         File directoryFile = new File(directoryPath);
         Path p = Paths.get(directoryPath);
         if (Files.isDirectory(p)) {
@@ -28,26 +29,43 @@ public class Tree {
                 if (currentFile.isDirectory()) {
                     // at this point you must create a new tree instance called childTree and use
                     // the previous tree to create an entry in the form "Tree: <Sha1> : folderName"
-                    addDirectory(currentFile.getPath());
+                    Tree childTree = new Tree();
+                    Path pathToSubDirectory = Paths.get(currentFile.getPath());
+                    File subDirectoryFile = new File(pathToSubDirectory.toString());
+                    File[] filesInSubDirectory = subDirectoryFile.listFiles();
+                    for (File currentSubFile : filesInSubDirectory) {
+                        if (currentSubFile.isDirectory())
+                            addDirectory(currentSubFile.getPath());
+                        else {
+                            BufferedReader br = new BufferedReader(new FileReader(currentSubFile));
+                            StringBuilder subFileContents = new StringBuilder("");
+                            while (br.ready())
+                                subFileContents.append(br.readLine());
+
+                            childTree.add("Blob : " + Blob.generateSHA(subFileContents.toString()));
+                            br.close();
+                        }
+                    }
+                    childTree.generateBlob();
+                    tree.add("tree : " + childTree.getSha1() + " : " + subDirectoryFile.getName());
                 }
                 // current file is not a directory
                 else {
                     BufferedReader br = new BufferedReader(new FileReader(currentFile));
                     StringBuilder fileContents = new StringBuilder("");
-                    while (br.ready()) {
-                        // at this point you have the name of the file, you must generate a hash with
-                        // that file and add the proper format to the tree with this file and all the
-                        // files after
+                    while (br.ready())
                         fileContents.append(br.readLine());
-                    }
 
+                    tree.add("Blob : " + Blob.generateSHA(fileContents.toString()) + " : " + currentFile.getName());
                     br.close();
                 }
             }
         } else {
-            throw new Exception("directory path is not valid, please use full path written out.");
+            throw new Exception("directory path is not valid, a possible solution is to use the absolute path.");
         }
-        return "";
+        tree.generateBlob();
+        this.directorySha1 = tree.getSha1();
+        return directorySha1;
     }
 
     public String getSHA1OfDirectory() {
