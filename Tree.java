@@ -19,33 +19,47 @@ public class Tree {
     }
 
     public String addDirectory(String directoryPath) throws Exception {
+        // create new tree instance and call upon it if necessary
         Tree childTree = new Tree();
         File directoryFile = new File(directoryPath);
         Path p = Paths.get(directoryPath);
+        // if path exists enter
         if (Files.isDirectory(p)) {
             File[] filesInDirectory = directoryFile.listFiles();
             if (filesInDirectory.length != 0) {
+                // loop through the files in directory
                 for (File currentFile : filesInDirectory) {
                     if (currentFile.isDirectory()) {
+                        // call addDirectory again with current subdirectory
                         addDirectory(currentFile.getPath());
                         StringBuilder sb = new StringBuilder("");
                         File[] filesInSubDirectory = currentFile.listFiles();
                         for (File fileNames : filesInSubDirectory)
                             sb.append(fileNames.getName());
+                        // add this directory with a sha1 of its contents to the child tree of current
+                        // working directory
                         childTree.add("tree : " + Blob.generateSHA(sb.toString()) + " : " + currentFile.getName());
                     } else {
+                        // if file is not a sub directory add a blob to the child tree of current
+                        // working directory
                         childTree.add(
                                 "Blob : " + Blob.generateSHA(currentFile.getName()) + " : " + currentFile.getName());
                     }
                 }
+                // enter the else if there were no files found in passed folder
+            } else {
+                childTree.add("No files were found in passed folder.");
             }
         } else {
             throw new Exception(
                     "You did not provide a valid path to a directory. Try using the absolute path if you didn't already.");
         }
+        // generate childTree of current working directory
         childTree.generateBlob();
+        // add the current tree to "entries" arraylist
         add("tree : " + childTree.getSha1() + " : " + directoryFile.getName());
         this.directorySha1 = childTree.getSha1();
+        // updates index/tree file in the workspace
         updateTreeFile();
         return this.directorySha1;
     }
@@ -132,6 +146,7 @@ public class Tree {
                 "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\objects\\fb360f9c09ac8c5edb2f18be5de4e80ea4c430d0");
         System.out.println(parentDirectoryFile.exists());
         System.out.println(parentDirectoryFile.toString());
+        tree.addDirectory("C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\testDirectory2");
 
     }
 }
