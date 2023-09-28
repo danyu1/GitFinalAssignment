@@ -5,7 +5,7 @@ import java.util.*;
 
 public class Index {
 
-    private HashMap<String, String> files = new HashMap<>();
+    private static HashMap<String, String> files = new HashMap<>();
     private static String path = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment";
 
     public Index() throws IOException {
@@ -29,6 +29,20 @@ public class Index {
         String hashName = Blob.blob(fileName);
 
         files.put(fileName, hashName);
+
+        Path indexPath = Paths.get(path + File.separator + "index");
+        try (BufferedWriter writer = Files.newBufferedWriter(indexPath, StandardOpenOption.CREATE,
+                StandardOpenOption.WRITE, StandardOpenOption.APPEND)) {
+            writer.write("blob : " + fileName + " : " + hashName);
+            writer.newLine();
+        }
+    }
+
+    // addBlob method that just takes in a parameters as a file object
+    public void addBlob(File fileName) throws Exception {
+        String hashName = Blob.blob(fileName);
+
+        files.put(fileName.getName(), hashName);
 
         Path indexPath = Paths.get(path + File.separator + "index");
         try (BufferedWriter writer = Files.newBufferedWriter(indexPath, StandardOpenOption.CREATE,

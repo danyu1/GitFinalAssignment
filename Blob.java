@@ -29,6 +29,22 @@ public class Blob {
         return hashed;
     }
 
+    // new method that takes in a file
+    public static String blob(File inputFile) throws Exception {
+        BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            line = line.trim();
+            sb.append(line).append("");
+        }
+        reader.close();
+        String hashed = generateSHA(sb.toString());
+        write(hashed, sb);
+
+        return hashed;
+    }
+
     public static void write(String hashed, StringBuilder inside) throws IOException {
         String newFile = hashed;
         FileWriter write = new FileWriter(pathToWorkSpace + "\\objects\\" + newFile);
