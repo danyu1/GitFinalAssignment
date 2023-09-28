@@ -169,7 +169,51 @@ public class TreeTest {
 
     @Test
     @DisplayName("Test add directory with nested folders and files.")
-    void testAddDirectory2() {
+    void testAddDirectory2() throws Exception {
+        File folderRoot = new File(
+                "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\AdvancedTest");
+        File folder1 = new File(
+                "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\AdvancedTest\\test3");
+        File folder2 = new File(
+                "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\AdvancedTest\\test5");
+        folderRoot.mkdir();
+        folder1.mkdir();
+        folder2.mkdir();
+        File file1 = new File(folderRoot.getPath() + "\\examplefile1.txt");
+        File file2 = new File(folderRoot.getPath() + "\\examplefile2.txt");
+        File file3 = new File(folderRoot.getPath() + "\\examplefile3.txt");
+        File subFile = new File(folder2.getPath() + "\\advancedTest.txt");
+        PrintWriter pw1 = new PrintWriter(file1);
+        PrintWriter pw2 = new PrintWriter(file2);
+        PrintWriter pw3 = new PrintWriter(file3);
+        PrintWriter subWriter = new PrintWriter(subFile);
+        pw1.print("new contents for file one");
+        pw2.print("new contents for file two");
+        pw3.print("new contents for file three");
+        subWriter.print("new contents for the sub file");
+        pw1.close();
+        pw2.close();
+        pw3.close();
+        subWriter.close();
+
+        Tree tree = new Tree();
+        tree.addDirectory(folderRoot.getPath());
+
+        assertEquals("ae186a310d6f6bbb1d3ea9c2f0b456fec1d49adf", tree.getDirectorySha());
+
+        Files.delete(Paths.get(subFile.getPath()));
+        Files.delete(Paths.get(folder2.getPath()));
+        Files.delete(Paths.get(folder1.getPath()));
+        Files.delete(Paths.get(file1.getPath()));
+        Files.delete(Paths.get(file2.getPath()));
+        Files.delete(Paths.get(file3.getPath()));
+        Files.delete(Paths.get(folderRoot.getPath()));
+        Files.deleteIfExists(Paths.get(
+                "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\objects\\502495e9806be809cf5e009432fcc9714489a9bf"));
+        Files.deleteIfExists(Paths.get(
+                "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\objects\\ae186a310d6f6bbb1d3ea9c2f0b456fec1d49adf"));
+        Files.deleteIfExists(Paths.get(
+                "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\objects\\da39a3ee5e6b4b0d3255bfef95601890afd80709"));
 
     }
 }
