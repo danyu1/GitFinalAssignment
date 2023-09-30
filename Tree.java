@@ -16,12 +16,14 @@ public class Tree {
     }
 
     public void remove(String entry) throws Exception {
-        entries.remove(entry);
+        for (String currentEntry : entries) {
+            currentEntry.contains(entry);
+            entries.remove(currentEntry);
+        }
         updateTreeFile();
     }
 
     public String addDirectory(String directoryPath) throws Exception {
-        Index index = new Index();
         // create new tree instance and call upon it if necessary
         Tree childTree = new Tree();
         File directoryFile = new File(directoryPath);
@@ -41,15 +43,15 @@ public class Tree {
                             sb.append(fileNames.getName());
                         // add this directory with a sha1 of its contents to the child tree of current
                         // working directory
-                        childTree.add("tree : " + Blob.generateSHA(sb.toString()) + " : " + currentFile.getName());
+                        childTree.add("tree : " + Blob.generateSHA1(sb.toString()) + " : " + currentFile.getName());
                     } else {
                         // if file is not a sub directory add a blob to the child tree of current
                         // working directory
-                        String toAdd = "Blob : " + Blob.generateSHA(currentFile.getName()) + " : "
+                        String toAdd = "Blob : " + Blob.generateSHA1(currentFile.getName()) + " : "
                                 + currentFile.getName();
                         childTree.add(toAdd);
                         // blob currentFile
-                        index.addBlob(currentFile);
+                        Blob.createBlob(currentFile.getName());
                     }
                 }
                 // enter the else if there were no files found in passed folder

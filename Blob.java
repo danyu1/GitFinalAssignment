@@ -28,7 +28,7 @@ public class Blob {
     // return the SHA1 of a file
     // MessageDigest supports different hash algorithms
     // Convert the byte array to a hexadecimal string
-    public String generateSHA1(String fileName) throws Exception {
+    public static String generateSHA1(String fileName) throws Exception {
         File fileToHash = new File(Paths.get(fileName).toString());
         MessageDigest md = MessageDigest.getInstance("SHA-1");
         BufferedReader br = new BufferedReader(new FileReader(fileToHash));
@@ -52,7 +52,7 @@ public class Blob {
     // convert the original file into byte
     // New file path that accesses objects folder which can access SHA1 file
     // Create a new file with the SHA-1 hash as the filename inside 'objects' folder
-    public void createBlob(String fileName) throws Exception {
+    public static void createBlob(String fileName) throws Exception {
         File originalFile = new File(Paths.get(fileName).toString());
         StringBuilder contents = new StringBuilder();
         BufferedReader br = new BufferedReader(new FileReader(originalFile));
