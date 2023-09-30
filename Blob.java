@@ -1,90 +1,82 @@
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class Blob {
-    public static String pathToWorkSpace = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment";
+    private Path p;
+    private String fileName;
 
-    public Blob(String string) {
+    // initialize a blob with a path and its fileName
+    public Blob(String fileName) {
+        this.fileName = fileName;
+        this.p = Paths.get(fileName);
     }
 
-    public static String blob(String inputFile) throws IOException, NoSuchAlgorithmException {
-        File file = new File(pathToWorkSpace + "\\" + inputFile);
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        StringBuilder sb = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            line = line.trim();
-            sb.append(line).append("");
-        }
-        reader.close();
-        String hashed = generateSHA(sb.toString());
-        write(hashed, sb);
-
-        return hashed;
-    }
-
-    // new method that takes in a file
-    public static String blob(File inputFile) throws Exception {
-        BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-        StringBuilder sb = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            line = line.trim();
-            sb.append(line).append("");
-        }
-        reader.close();
-        String hashed = generateSHA(sb.toString());
-        write(hashed, sb);
-
-        return hashed;
-    }
-
-    public static void write(String hashed, StringBuilder inside) throws IOException {
-        String newFile = hashed;
-        FileWriter write = new FileWriter(pathToWorkSpace + "\\objects\\" + newFile);
-        write.write(inside.toString());
-        write.close();
-    }
-
-    public static String generateSHA(String input) throws NoSuchAlgorithmException {
+    // write given text to the file and path created
+    public void writeToFile(String textToWrite) throws IOException {
         try {
-            // getInstance() method is called with algorithm SHA-1
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
-
-            // digest() method is called
-            // to calculate message digest of the input string
-            // returned as array of byte
-            byte[] messageDigest = md.digest(input.getBytes());
-
-            // Convert byte array into signum representation
-            BigInteger no = new BigInteger(1, messageDigest);
-
-            // Convert message digest into hex value
-            String hashtext = no.toString(16);
-
-            // Add preceding 0s to make it 32 bit
-            while (hashtext.length() < 32) {
-                hashtext = "0" + hashtext;
-            }
-
-            // return the HashText
-            return hashtext;
-        }
-
-        // For specifying wrong message digest algorithms
-        catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            Files.writeString(p, textToWrite, StandardCharsets.ISO_8859_1);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
-        String file = "input.txt";
-        blob(file);
+    // return the SHA1 of a file
+    // MessageDigest supports different hash algorithms
+    // Convert the byte array to a hexadecimal string
+    public String generateSHA1(String fileName) throws Exception {
+        File fileToHash = new File(Paths.get(fileName).toString());
+        MessageDigest md = MessageDigest.getInstance("SHA-1");
+        BufferedReader br = new BufferedReader(new FileReader(fileToHash));
+        StringBuilder contents = new StringBuilder();
+        while (br.ready()) {
+            contents.append(br.readLine());
+        }
+        br.close();
+        byte[] hash = md.digest(contents.toString().getBytes());
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+
+    // convert the original file into byte
+    // New file path that accesses objects folder which can access SHA1 file
+    // Create a new file with the SHA-1 hash as the filename inside 'objects' folder
+    public void createBlob(String fileName) throws Exception {
+        File originalFile = new File(Paths.get(fileName).toString());
+        StringBuilder contents = new StringBuilder();
+        BufferedReader br = new BufferedReader(new FileReader(originalFile));
+        while (br.ready()) {
+            contents.append(br.readLine());
+        }
+        br.close();
+        String objectsFolderPath = "objects";
+        Path objectFilePath = Paths.get(objectsFolderPath, generateSHA1(fileName));
+        Files.write(objectFilePath, contents.toString().getBytes());
+        System.out.println("New file created with SHA-1 hash as filename: " + objectFilePath);
+    }
+
+    public Path getPath() {
+        return this.p;
+    }
+
+    public static void main(String[] args) {
+
     }
 }

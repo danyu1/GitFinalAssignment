@@ -1,5 +1,2 @@
-blob : 81e0268c84067377a0a1fdfb5cc996c93f6dcf9f : file1.txt
-tree : 79d4ac3fc15de532c399186299fb290d3108848d : subsubdirectory
-tree : 23a7fa36eb91fcd32989056f89a911fc880370d7 : yes
-tree : fb360f9c09ac8c5edb2f18be5de4e80ea4c430d0 : testDirectory1
-tree : 4f16b5ff8178a7cc86293571cc5dcdd52ed4a009 : testDirectory2
+test_input.txt : b0e6a4322b5b4f076578b2707389d2b2f24107c8
+input.txt : ac3089c0cdc2cb91ed0f22a2910f37d9d80f12ca
