@@ -45,33 +45,33 @@ public class BlobTest {
 
     @Test
     void testBlob() throws Exception {
-        Blob.blob("junit_example_test1.txt");
-        Blob.blob("junit_example_test2.txt");
+        Blob.createBlob("junit_example_test1.txt");
+        Blob.createBlob("junit_example_test2.txt");
 
-        Path tree1 = Paths.get(pathToWorkSpace + "objects", "f5cda28ce12d468c64a6a2f2224971f894442f1b");
-        Path tree2 = Paths.get(pathToWorkSpace + "objects", "50d4b41eed4faffe212d8cf6ec89d7889dfeff9e");
+        Path pathToFile1 = Paths.get(Paths.get("objects").toString(), "f5cda28ce12d468c64a6a2f2224971f894442f1b");
+        Path pathToFile2 = Paths.get(Paths.get("objects").toString(), "50d4b41eed4faffe212d8cf6ec89d7889dfeff9e");
 
         // assert that the blob was created in the objects folder with the appropriate
         // hash name
-        assertTrue(Files.exists(tree1));
-        assertTrue(Files.exists(tree2));
+        assertTrue(Files.exists(pathToFile1));
+        assertTrue(Files.exists(pathToFile2));
         // assert that the blob created has the same contents as the original text file
-        File file1 = new File(pathToWorkSpace + "objects/f5cda28ce12d468c64a6a2f2224971f894442f1b");
+        File file1 = new File(pathToFile1.toString());
         BufferedReader br1 = new BufferedReader(new FileReader(file1));
-        File file2 = new File(pathToWorkSpace + "objects/50d4b41eed4faffe212d8cf6ec89d7889dfeff9e");
+        File file2 = new File(pathToFile2.toString());
         BufferedReader br2 = new BufferedReader(new FileReader(file2));
         assertEquals("some content for file 1", br1.readLine());
         assertEquals("some content for file 2", br2.readLine());
         br1.close();
         br2.close();
-        Files.delete(tree1);
-        Files.delete(tree2);
+        Files.delete(pathToFile1);
+        Files.delete(pathToFile2);
     }
 
     @Test
     void testGenerateSHA() throws Exception {
         // assert that generateSHA method returns the correct SHA hash
-        assertEquals("f5cda28ce12d468c64a6a2f2224971f894442f1b", Blob.generateSHA("some content for file 1"));
-        assertEquals("50d4b41eed4faffe212d8cf6ec89d7889dfeff9e", Blob.generateSHA("some content for file 2"));
+        assertEquals("f5cda28ce12d468c64a6a2f2224971f894442f1b", Blob.generateSHA1("junit_example_test1.txt"));
+        assertEquals("50d4b41eed4faffe212d8cf6ec89d7889dfeff9e", Blob.generateSHA1("junit_example_test2.txt"));
     }
 }

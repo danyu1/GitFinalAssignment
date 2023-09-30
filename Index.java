@@ -2,17 +2,15 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 public class Index {
     private int totalBlobs;
-    private ArrayList<String> keyValuePairs;
+    private static ArrayList<String> keyValuePairs;
 
     // initialize private instance variables
     // New file path to the objects folder
@@ -33,15 +31,22 @@ public class Index {
             file.createNewFile();
     }
 
+    public boolean containsBlob(String fileName) {
+        for (String entry : keyValuePairs) {
+            if (entry.contains(fileName))
+                return true;
+        }
+        return false;
+    }
+
     // creates a sha1 hash of the passed file and updates the index file to record
     // appropriate key:value pair
     public void add(String fileName) throws Exception {
         Path p = Paths.get("index");
-        Blob b = new Blob();
-        String SHA1 = b.generateSHA1(fileName);
+        String SHA1 = Blob.generateSHA1(fileName);
         if (!keyValuePairs.contains(fileName + " : " + SHA1)) {
             StringBuilder sb = new StringBuilder("");
-            b.createBlob(fileName);
+            Blob.createBlob(fileName);
             keyValuePairs.add(fileName + " : " + SHA1);
             totalBlobs++;
             for (int i = 0; i < keyValuePairs.size(); i++) {
@@ -69,9 +74,8 @@ public class Index {
         Path p = Paths.get("index");
         StringBuilder sb = new StringBuilder("");
         boolean removed = false;
-        Blob b = new Blob();
         String currentLine = "";
-        String SHA1 = b.generateSHA1(fileName);
+        String SHA1 = Blob.generateSHA1(fileName);
         String keyValuePair = fileName + " : " + SHA1;
         keyValuePairs.remove(keyValuePair);
         // Path sha1Path = Paths.get("objects", SHA1);
@@ -98,6 +102,7 @@ public class Index {
                 totalBlobs--;
             }
         }
+        br.close();
         if (removed) {
             Files.writeString(p, sb.toString(), StandardCharsets.ISO_8859_1);
             System.out.println("Succesfully removed blob.");
@@ -111,6 +116,7 @@ public class Index {
         i.add("test.txt");
         i.add("test_input.txt");
         i.add("input.txt");
+        i.add("junit_example_test2.txt");
         i.remove("test.txt");
     }
 }

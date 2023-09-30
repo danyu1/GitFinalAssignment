@@ -1,29 +1,12 @@
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 public class Blob {
-    private Path p;
-    private String fileName;
-
-    // write given text to the file and path created
-    public void writeToFile(String textToWrite) throws IOException {
-        try {
-            Files.writeString(p, textToWrite, StandardCharsets.ISO_8859_1);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     // return the SHA1 of a file
     // MessageDigest supports different hash algorithms
@@ -60,18 +43,12 @@ public class Blob {
             contents.append(br.readLine());
         }
         br.close();
-        String objectsFolderPath = "objects";
-        Path objectFilePath = Paths.get(objectsFolderPath, generateSHA1(fileName));
+        Path objectFilePath = Paths.get(Paths.get("objects").toString() + "\\" + generateSHA1(fileName));
         Files.write(objectFilePath, contents.toString().getBytes());
         System.out.println("New file created with SHA-1 hash as filename: " + objectFilePath);
     }
 
-    public Path getPath() {
-        return this.p;
-    }
-
     public static void main(String[] args) throws Exception {
-        Blob blob = new Blob();
-        blob.createBlob("test.txt");
+        Blob.createBlob("test.txt");
     }
 }

@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -90,7 +91,17 @@ public class Commit {
         // add all the file contents except for the next commit
         forSHA.append(tree.returnAllEntries() + "\n" + this.prevCommit + "\n" + this.author + "\n" + this.date + "\n"
                 + this.summary);
-        return Blob.generateSHA(forSHA.toString());
+        MessageDigest md = MessageDigest.getInstance("SHA-1");
+        byte[] hash = md.digest(forSHA.toString().getBytes());
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 
     // code taken from javatpoint.com
