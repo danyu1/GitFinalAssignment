@@ -10,12 +10,14 @@ public class Tree {
     private String sha1;
     private String directorySha1;
 
-    public void add(String entry) {
+    public void add(String entry) throws Exception {
         entries.add(entry);
+        updateTreeFile();
     }
 
-    public void remove(String entry) {
+    public void remove(String entry) throws Exception {
         entries.remove(entry);
+        updateTreeFile();
     }
 
     public String addDirectory(String directoryPath) throws Exception {
@@ -71,12 +73,11 @@ public class Tree {
     // in this case "tree" file is called index due to previous choices made in
     // other classes
     public void updateTreeFile() throws Exception {
-        Path pathToTreeFile = Paths.get("C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\index");
         StringBuilder sb = new StringBuilder("");
         for (String entry : entries) {
             sb.append(entry).append("\n");
         }
-        Files.write(pathToTreeFile, sb.toString().getBytes());
+        Files.write(Paths.get("tree"), sb.toString().getBytes());
     }
 
     public String getDirectorySha() {
