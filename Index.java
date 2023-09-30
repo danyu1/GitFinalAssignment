@@ -35,13 +35,13 @@ public class Index {
 
     // creates a sha1 hash of the passed file and updates the index file to record
     // appropriate key:value pair
-    public void add(String fileName) throws NoSuchAlgorithmException, IOException {
-        Path p = Paths.get("./index");
-        Blob b = new Blob(fileName);
-        String SHA1 = b.generateSHA1(b.convertToByteArray(b.getPath()));
+    public void add(String fileName) throws Exception {
+        Path p = Paths.get("index");
+        Blob b = new Blob();
+        String SHA1 = b.generateSHA1(fileName);
         if (!keyValuePairs.contains(fileName + " : " + SHA1)) {
             StringBuilder sb = new StringBuilder("");
-            b.createBlob(SHA1, b.getPath());
+            b.createBlob(fileName);
             keyValuePairs.add(fileName + " : " + SHA1);
             totalBlobs++;
             for (int i = 0; i < keyValuePairs.size(); i++) {
@@ -64,14 +64,14 @@ public class Index {
     // remove the keyValuePair from the arrayList
     // create a path to access the sha1 file
     // delete the sha1 hash file
-    public void remove(String fileName) throws NoSuchAlgorithmException, IOException {
+    public void remove(String fileName) throws Exception {
         int i = 0;
         Path p = Paths.get("index");
         StringBuilder sb = new StringBuilder("");
         boolean removed = false;
-        Blob b = new Blob(fileName);
+        Blob b = new Blob();
         String currentLine = "";
-        String SHA1 = b.generateSHA1(b.convertToByteArray(b.getPath()));
+        String SHA1 = b.generateSHA1(fileName);
         String keyValuePair = fileName + " : " + SHA1;
         keyValuePairs.remove(keyValuePair);
         // Path sha1Path = Paths.get("objects", SHA1);
