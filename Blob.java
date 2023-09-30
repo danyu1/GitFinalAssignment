@@ -16,12 +16,6 @@ public class Blob {
     private Path p;
     private String fileName;
 
-    // initialize a blob with a path and its fileName
-    public Blob(String fileName) {
-        this.fileName = fileName;
-        this.p = Paths.get(fileName);
-    }
-
     // write given text to the file and path created
     public void writeToFile(String textToWrite) throws IOException {
         try {
@@ -76,7 +70,8 @@ public class Blob {
         return this.p;
     }
 
-    public static void main(String[] args) {
-
+    public static void main(String[] args) throws Exception {
+        Blob blob = new Blob();
+        blob.createBlob("test.txt");
     }
 }
