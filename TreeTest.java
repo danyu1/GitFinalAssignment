@@ -69,7 +69,7 @@ public class TreeTest {
                 tree.add(blob2ToAdd);
                 tree.generateBlob();
 
-                File f1 = new File(pathToWorkSpace + "\\objects", tree.getSha1());
+                File f1 = new File(pathToWorkSpace + "\\objects", tree.getTreeSha());
                 BufferedReader br = new BufferedReader(new FileReader(f1));
 
                 // assert that the correct string is added to the tree file which should also
@@ -98,7 +98,7 @@ public class TreeTest {
                 tree.generateBlob();
 
                 // assert that the getSha1 method returns the proper hash for the tree file
-                assertEquals("f9b2d51bde55c0b0a062f886df52b9e572e3fe59", tree.getSha1());
+                assertEquals("f9b2d51bde55c0b0a062f886df52b9e572e3fe59", tree.getTreeSha());
 
                 // delete the tree file within the objects folder
                 Path p1 = Paths.get(
@@ -118,7 +118,7 @@ public class TreeTest {
                 tree.remove(blob1ToAdd);
                 tree.generateBlob();
 
-                File f1 = new File(pathToWorkSpace + "\\objects", tree.getSha1());
+                File f1 = new File(pathToWorkSpace + "\\objects", tree.getTreeSha());
                 BufferedReader br = new BufferedReader(new FileReader(f1));
 
                 // assert that the tree file has removed the correct blob if the first blob was
@@ -156,7 +156,7 @@ public class TreeTest {
                 Tree tree = new Tree();
                 tree.addDirectory(folder1.getPath());
 
-                assertEquals("43b30f483e15a64a6afe4096f805128407574940", tree.getDirectorySha());
+                assertEquals("43b30f483e15a64a6afe4096f805128407574940", tree.getTreeSha());
 
                 Files.delete(Paths.get(file1.getPath()));
                 Files.delete(Paths.get(file2.getPath()));
@@ -199,7 +199,7 @@ public class TreeTest {
                 Tree tree = new Tree();
                 tree.addDirectory(folderRoot.getPath());
 
-                assertEquals("ae186a310d6f6bbb1d3ea9c2f0b456fec1d49adf", tree.getDirectorySha());
+                assertEquals("ae186a310d6f6bbb1d3ea9c2f0b456fec1d49adf", tree.getTreeSha());
 
                 Files.delete(Paths.get(subFile.getPath()));
                 Files.delete(Paths.get(folder2.getPath()));

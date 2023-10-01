@@ -106,7 +106,7 @@ public class Commit {
     public String createTree() throws Exception {
         this.tree = new Tree();
         this.tree.generateBlob();
-        this.treeHash = tree.getSha1();
+        this.treeHash = tree.getTreeSha();
         return this.treeHash;
     }
 
@@ -127,7 +127,7 @@ public class Commit {
         this.tree.add(fileName);
         // generate new hash for the new tree
         this.tree.generateBlob();
-        this.treeHash = tree.getSha1();
+        this.treeHash = tree.getTreeSha();
         // must update toPrint stringbuilder
         Path temp = Paths.get(Paths.get("objects").toString(), prevCommit);
         this.pathToCommit = temp.toString();

@@ -23,7 +23,7 @@ public class Tree {
         updateTreeFile();
     }
 
-    public String addDirectory(String directoryPath) throws Exception {
+    public String addDirectory1(String directoryPath) throws Exception {
         // create new tree instance and call upon it if necessary
         Tree childTree = new Tree();
         File directoryFile = new File(directoryPath);
@@ -65,11 +65,40 @@ public class Tree {
         // generate childTree of current working directory in objects folder
         childTree.generateBlob();
         // add the current tree to "entries" arraylist
-        add("tree : " + childTree.getSha1() + " : " + directoryFile.getName());
-        this.directorySha1 = childTree.getSha1();
+        add("tree : " + childTree.getTreeSha() + " : " + directoryFile.getName());
+        this.directorySha1 = childTree.getTreeSha();
         // updates index/tree file in the workspace
         updateTreeFile();
         return this.directorySha1;
+    }
+
+    public String addDirectory(String directoryPath) throws Exception {
+        Tree childTree = new Tree();
+        Path pathToFolder = Paths.get(directoryPath);
+        File currentDirectory = new File(pathToFolder.toString());
+        File[] files = currentDirectory.listFiles();
+        if (files.length == 0) {
+            childTree.add("");
+            return childTree.getTreeSha();
+        }
+        if (Files.isDirectory(pathToFolder)) {
+            for (File currentFile : files) {
+                if (currentFile.isDirectory()) {
+                    String shaOfDirectoryBlobs = "tree : " + addDirectory(currentFile.getPath()) + " : "
+                            + currentFile.getName();
+                    childTree.add(shaOfDirectoryBlobs);
+                    childTree.generateBlob();
+                }
+                // currentFile is not a directory
+                else {
+                    add("Blob : " + Blob.generateSHA1(currentFile.getName()) + " : " + currentFile.getName());
+                    Blob.createBlob(currentFile.getName());
+                }
+            }
+        } else {
+            throw new Exception("Invalid path or folder does not exist.");
+        }
+        return childTree.getTreeSha();
     }
 
     // in this case "tree" file is called index due to previous choices made in
@@ -87,34 +116,34 @@ public class Tree {
         Files.write(Paths.get("tree"), sb.toString().getBytes());
     }
 
-    public String getDirectorySha() {
-        return this.directorySha1;
+    public String getTreeSha() {
+        return this.sha1;
     }
 
-    // "save" method
-    public void generateBlob() throws IOException, NoSuchAlgorithmException {
-
-        // Create a StringBuilder to concatenate all entries
-        StringBuilder content = new StringBuilder("");
+    public String generateTreeSHA() throws Exception {
         StringBuilder toHash = new StringBuilder("");
         for (String entry : entries) {
             int lastColonIndex = entry.lastIndexOf(":");
             toHash.append(entry.substring(lastColonIndex + 1).trim());
-            content.append(entry).append("\n");
         }
 
         // Calculate the SHA-1 hash of the content
         MessageDigest digest = MessageDigest.getInstance("SHA-1");
         byte[] hashBytes = digest.digest(toHash.toString().getBytes());
         this.sha1 = byteArrayToHex(hashBytes);
-
-        // Create the blob file in the 'objects' folder
-        Path blobPath = Paths.get(pathToWorkSpace + "\\objects\\", sha1);
-        Files.write(blobPath, content.toString().getBytes());
+        return this.sha1;
     }
 
-    public String getSha1() {
-        return this.sha1;
+    // "save" method
+    public void generateBlob() throws Exception {
+        // Create a StringBuilder to concatenate all entries
+        StringBuilder content = new StringBuilder("");
+        for (String entry : entries) {
+            content.append(entry).append("\n");
+        }
+        // Create the blob file in the 'objects' folder
+        Path blobPath = Paths.get(pathToWorkSpace + "\\objects\\", generateTreeSHA());
+        Files.write(blobPath, content.toString().getBytes());
     }
 
     // Utility method to convert byte array to hexadecimal string
@@ -141,10 +170,13 @@ public class Tree {
     public static void main(String[] args) throws Exception {
         Tree tree = new Tree();
 
-        tree.add("blob : f5cda28ce12d468c64a6a2f2224971f894442f1b : junit_example_test1.txt");
-        tree.add("blob : 50d4b41eed4faffe212d8cf6ec89d7889dfeff9e : junit_example_test2.txt");
-        tree.remove("blob : f5cda28ce12d468c64a6a2f2224971f894442f1b : junit_example_test1.txt");
-        tree.generateBlob();
+        // tree.add("blob : f5cda28ce12d468c64a6a2f2224971f894442f1b :
+        // junit_example_test1.txt");
+        // tree.add("blob : 50d4b41eed4faffe212d8cf6ec89d7889dfeff9e :
+        // junit_example_test2.txt");
+        // tree.remove("blob : f5cda28ce12d468c64a6a2f2224971f894442f1b :
+        // junit_example_test1.txt");
+        // tree.generateBlob();
         // Add entries to the tree
         // tree.add("blob : 81e0268c84067377a0a1fdfb5cc996c93f6dcf9f : file1.txt");
         // tree.add("blob : 01d82591292494afd1602d175e165f94992f6f5f : file2.txt");
@@ -157,15 +189,13 @@ public class Tree {
 
         // System.out.println("Tree SHA1: " + tree.getSha1());
 
+        tree.addDirectory("C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\testDirectory1");
+        File parentDirectoryFile = new File(
+                "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\objects\\fb360f9c09ac8c5edb2f18be5de4e80ea4c430d0");
+        System.out.println(parentDirectoryFile.exists());
+        System.out.println(parentDirectoryFile.toString());
         // tree.addDirectory("C:\\Users\\danie\\OneDrive\\Desktop\\Topics
-        // Repos\\GitFinalAssignment\\testDirectory1");
-        // File parentDirectoryFile = new File(
-        // "C:\\Users\\danie\\OneDrive\\Desktop\\Topics
-        // Repos\\GitFinalAssignment\\objects\\fb360f9c09ac8c5edb2f18be5de4e80ea4c430d0");
-        // System.out.println(parentDirectoryFile.exists());
-        // System.out.println(parentDirectoryFile.toString());
-        // // tree.addDirectory("C:\\Users\\danie\\OneDrive\\Desktop\\Topics
-        // // Repos\\GitFinalAssignment\\testDirectory2");
+        // Repos\\GitFinalAssignment\\testDirectory2");
 
     }
 }
