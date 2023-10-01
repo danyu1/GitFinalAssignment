@@ -76,6 +76,11 @@ public class Tree {
     // other classes
     public void updateTreeFile() throws Exception {
         StringBuilder sb = new StringBuilder("");
+        BufferedReader br = new BufferedReader(new FileReader(new File(Paths.get("tree").toString())));
+        while (br.ready()) {
+            sb.append(br.readLine() + "\n");
+        }
+        br.close();
         for (String entry : entries) {
             sb.append(entry).append("\n");
         }
@@ -90,8 +95,8 @@ public class Tree {
     public void generateBlob() throws IOException, NoSuchAlgorithmException {
 
         // Create a StringBuilder to concatenate all entries
-        StringBuilder content = new StringBuilder();
-        StringBuilder toHash = new StringBuilder();
+        StringBuilder content = new StringBuilder("");
+        StringBuilder toHash = new StringBuilder("");
         for (String entry : entries) {
             int lastColonIndex = entry.lastIndexOf(":");
             toHash.append(entry.substring(lastColonIndex + 1).trim());
@@ -101,7 +106,7 @@ public class Tree {
         // Calculate the SHA-1 hash of the content
         MessageDigest digest = MessageDigest.getInstance("SHA-1");
         byte[] hashBytes = digest.digest(toHash.toString().getBytes());
-        sha1 = byteArrayToHex(hashBytes);
+        this.sha1 = byteArrayToHex(hashBytes);
 
         // Create the blob file in the 'objects' folder
         Path blobPath = Paths.get(pathToWorkSpace + "\\objects\\", sha1);
@@ -109,7 +114,7 @@ public class Tree {
     }
 
     public String getSha1() {
-        return sha1;
+        return this.sha1;
     }
 
     // Utility method to convert byte array to hexadecimal string

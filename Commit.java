@@ -11,7 +11,7 @@ import java.util.Date;
 
 public class Commit {
     Tree tree = null;
-    String treeHash = null;
+    String treeHash = "";
     String prevCommit = null;
     String nextCommit = null;
     String author;
@@ -24,73 +24,63 @@ public class Commit {
 
     // constructor for any commit after the first ever commit
     public Commit(String shaOfPrevCommit, String author, String summary) throws Exception {
-        this.toPrint = new StringBuilder("");
         createTree();
-        this.prevCommit = shaOfPrevCommit;
-        if (nextCommit == null)
-            nextCommit = "";
-
+        prevCommit = shaOfPrevCommit;
+        this.nextCommit = "";
         this.author = author;
         this.date = getDate();
         this.summary = summary;
 
-        toPrint.append(this.treeHash + "\n" + this.prevCommit + "\n\n" + this.nextCommit + "\n" + this.author + "\n"
-                + this.date + "\n" + this.summary);
+        // update toPrint to be ready to use when writing to a file
+        toPrint = new StringBuilder();
+        toPrint.append(treeHash + "\n");
+        toPrint.append(this.prevCommit + "\n");
+        toPrint.append(this.nextCommit + "\n");
+        toPrint.append(this.author + "\n");
+        toPrint.append(this.date + "\n");
+        toPrint.append(summary);
+        this.pathToCommit = Paths.get(Paths.get("objects").toString(), prevCommit).toString();
+        // update the next line of the previous commit
+        // updatePrevNextCommit();
         save();
-
-        // add updated commit contents in a stringbuilder
-        File fileToPrevCommit = new File(pathToWorkSpace + "\\objects\\" + shaOfPrevCommit);
-        StringBuilder tempSB = new StringBuilder("");
-        BufferedReader br = new BufferedReader(new FileReader(fileToPrevCommit));
-        for (int i = 0; i < 5; i++) {
-            if (i != 2)
-                tempSB.append(br.readLine() + "\n");
-            else {
-                br.readLine();
-                tempSB.append(generateSha1() + "\n");
-            }
-        }
-        tempSB.append(br.readLine());
-        br.close();
-
-        // update the second most recently created commits "next" value
-        PrintWriter pw = new PrintWriter(pathToWorkSpace + "\\objects\\" + shaOfPrevCommit);
-        pw.print(tempSB.toString());
-        pw.close();
-        pathToCommit = pathToWorkSpace + "\\objects\\" + generateSha1();
     }
 
     // constructor for the first commit with no parent or next
     public Commit(String author, String summary) throws Exception {
-        this.toPrint = new StringBuilder("");
         createTree();
-        if (prevCommit == null)
-            prevCommit = "";
-        if (nextCommit == null)
-            nextCommit = "";
-
+        prevCommit = "";
+        this.nextCommit = "";
         this.author = author;
         this.date = getDate();
         this.summary = summary;
 
-        // toPrint will be printed out to a commit file in the objects folder
-        toPrint.append(this.treeHash + "\n" + this.prevCommit + "\n" + this.nextCommit + "\n" + this.author + "\n"
-                + this.date + "\n" + this.summary);
+        // update toPrint to be ready to use when writing to a file
+        toPrint = new StringBuilder();
+        toPrint.append(treeHash + "\n");
+        toPrint.append(this.prevCommit + "\n");
+        toPrint.append(this.nextCommit + "\n");
+        toPrint.append(this.author + "\n");
+        toPrint.append(this.date + "\n");
+        toPrint.append(summary);
         save();
-        pathToCommit = pathToWorkSpace + "\\objects\\" + generateSha1();
     }
 
     public void save() throws Exception {
         // Create the commit file in the 'objects' folder
-        Path commitPath = Paths.get(pathToWorkSpace + "\\objects", generateSha1());
+        Path commitPath = Paths.get(Paths.get("objects").toString(), generateSha1());
         Files.write(commitPath, toPrint.toString().getBytes());
+        // write to the commit file
         Files.write(Paths.get("commit"), toPrint.toString().getBytes());
+    }
+
+    public String getTreeHash() {
+        return this.treeHash;
     }
 
     public String generateSha1() throws Exception {
         StringBuilder forSHA = new StringBuilder("");
         // add all the file contents except for the next commit
-        forSHA.append(tree.returnAllEntries() + "\n" + this.prevCommit + "\n" + this.author + "\n" + this.date + "\n"
+        forSHA.append(treeHash + "\n" + this.prevCommit + "\n" + this.author + "\n" + this.date + "\n"
                 + this.summary);
         MessageDigest md = MessageDigest.getInstance("SHA-1");
         byte[] hash = md.digest(forSHA.toString().getBytes());
@@ -120,36 +110,61 @@ public class Commit {
         return this.treeHash;
     }
 
+    // just in case typa method
+    public void setNextCommit(Commit commit) throws Exception {
+        this.nextCommit = commit.getTreeHash();
+        toPrint = new StringBuilder();
+        toPrint.append(treeHash + "\n");
+        toPrint.append(this.prevCommit + "\n");
+        toPrint.append(this.nextCommit + "\n");
+        toPrint.append(this.author + "\n");
+        toPrint.append(this.date + "\n");
+        toPrint.append(summary);
+        save();
+    }
+
     public void addToTree(String fileName) throws Exception {
         this.tree.add(fileName);
         // generate new hash for the new tree
         this.tree.generateBlob();
         this.treeHash = tree.getSha1();
         // must update toPrint stringbuilder
-        updateNextCommit();
+        Path temp = Paths.get(Paths.get("objects").toString(), prevCommit);
+        this.pathToCommit = temp.toString();
+        // if this is the intial commit there is no need to update the "next" commit of
+        // its previous commit since it didn't have a prevCommit
+        if (!this.prevCommit.equals(""))
+            updatePrevNextCommit();
         this.toPrint = new StringBuilder("");
         toPrint.append(this.treeHash + "\n" + this.prevCommit + "\n" + this.nextCommit + "\n" + this.author + "\n"
                 + this.date + "\n" + this.summary);
-
+        save();
     }
 
     // read the parentCommit that has the updated "next" value and update this
     // objects next value
-    public void updateNextCommit() throws Exception {
-        File filePathToCommit = new File(pathToCommit);
-        BufferedReader br = new BufferedReader(new FileReader(filePathToCommit));
-        br.readLine();
-        br.readLine();
-        this.nextCommit = br.readLine();
+    public void updatePrevNextCommit() throws Exception {
+        File filePathToPrevCommit = new File(pathToCommit);
+        BufferedReader br = new BufferedReader(new FileReader(filePathToPrevCommit));
+        StringBuilder contents = new StringBuilder("");
+        for (int i = 0; i < 5; i++) {
+            if (i == 2) {
+                contents.append(generateSha1() + "\n");
+            }
+            contents.append(br.readLine() + "\n");
+        }
+        contents.append(br.readLine());
+        Files.write(Paths.get(Paths.get("objects").toString(), prevCommit), contents.toString().getBytes());
         br.close();
     }
 
     public static void main(String[] args) throws Exception {
         Commit c1 = new Commit("paco", "initial commit");
-        Commit c2 = new Commit(c1.generateSha1(), "paco", "second ever commit");
+        Commit c2 = new Commit(c1.generateSha1(), "paco", "second commit");
+        Commit c3 = new Commit(c2.generateSha1(), "paco", "final commit");
         c1.addToTree("test.txt");
-        c1.save();
+        c2.addToTree("test_input.txt");
+        c3.addToTree("input.txt");
         System.out.println(c1.getDate());
-        System.out.println(c2.getDate());
     }
 }
