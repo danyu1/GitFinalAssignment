@@ -23,55 +23,6 @@ public class Tree {
         updateTreeFile();
     }
 
-    public String addDirectory1(String directoryPath) throws Exception {
-        // create new tree instance and call upon it if necessary
-        Tree childTree = new Tree();
-        File directoryFile = new File(directoryPath);
-        Path p = Paths.get(directoryPath);
-        // if path exists enter
-        if (Files.isDirectory(p)) {
-            File[] filesInDirectory = directoryFile.listFiles();
-            if (filesInDirectory.length != 0) {
-                // loop through the files in directory
-                for (File currentFile : filesInDirectory) {
-                    if (currentFile.isDirectory()) {
-                        // call addDirectory again with current subdirectory
-                        addDirectory(currentFile.getPath());
-                        StringBuilder sb = new StringBuilder("");
-                        File[] filesInSubDirectory = currentFile.listFiles();
-                        for (File fileNames : filesInSubDirectory)
-                            sb.append(fileNames.getName());
-                        // add this directory with a sha1 of its contents to the child tree of current
-                        // working directory
-                        childTree.add("tree : " + Blob.generateSHA1(sb.toString()) + " : " + currentFile.getName());
-                    } else {
-                        // if file is not a sub directory add a blob to the child tree of current
-                        // working directory
-                        String toAdd = "Blob : " + Blob.generateSHA1(currentFile.getName()) + " : "
-                                + currentFile.getName();
-                        childTree.add(toAdd);
-                        // blob currentFile
-                        Blob.createBlob(currentFile.getName());
-                    }
-                }
-                // enter the else if there were no files found in passed folder
-            } else {
-                childTree.add("No files were found in passed folder.");
-            }
-        } else {
-            throw new Exception(
-                    "You did not provide a valid path to a directory. Try using the absolute path if you didn't already.");
-        }
-        // generate childTree of current working directory in objects folder
-        childTree.generateBlob();
-        // add the current tree to "entries" arraylist
-        add("tree : " + childTree.getTreeSha() + " : " + directoryFile.getName());
-        this.directorySha1 = childTree.getTreeSha();
-        // updates index/tree file in the workspace
-        updateTreeFile();
-        return this.directorySha1;
-    }
-
     public String addDirectory(String directoryPath) throws Exception {
         Tree childTree = new Tree();
         Path pathToFolder = Paths.get(directoryPath);
@@ -84,20 +35,21 @@ public class Tree {
         if (Files.isDirectory(pathToFolder)) {
             for (File currentFile : files) {
                 if (currentFile.isDirectory()) {
-                    String shaOfDirectoryBlobs = "tree : " + addDirectory(currentFile.getPath()) + " : "
-                            + currentFile.getName();
-                    childTree.add(shaOfDirectoryBlobs);
-                    childTree.generateBlob();
+                    String subDirectoryPath = directoryPath + "\\" + currentFile.getName();
+                    String shaOfDirectoryBlobs = addDirectory(subDirectoryPath);
+                    childTree.add("tree : " + shaOfDirectoryBlobs + " : " + currentFile.getName());
                 }
                 // currentFile is not a directory
                 else {
-                    add("Blob : " + Blob.generateSHA1(currentFile.getName()) + " : " + currentFile.getName());
-                    Blob.createBlob(currentFile.getName());
+                    childTree.add("Blob : " + Blob.generateSHA1WithPath(currentFile.getPath()) + " : "
+                            + currentFile.getName());
+                    Blob.createBlobWithPath(currentFile.getPath());
                 }
             }
         } else {
             throw new Exception("Invalid path or folder does not exist.");
         }
+        childTree.generateBlob();
         return childTree.getTreeSha();
     }
 
