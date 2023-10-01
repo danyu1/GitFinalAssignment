@@ -84,6 +84,7 @@ public class Commit {
         // Create the commit file in the 'objects' folder
         Path commitPath = Paths.get(pathToWorkSpace + "\\objects", generateSha1());
         Files.write(commitPath, toPrint.toString().getBytes());
+        Files.write(Paths.get("commit"), toPrint.toString().getBytes());
     }
 
     public String generateSha1() throws Exception {
@@ -112,10 +113,11 @@ public class Commit {
     }
 
     // create a tree and generate a base sha1 for an empty file
-    public void createTree() throws Exception {
+    public String createTree() throws Exception {
         this.tree = new Tree();
         this.tree.generateBlob();
         this.treeHash = tree.getSha1();
+        return this.treeHash;
     }
 
     public void addToTree(String fileName) throws Exception {
