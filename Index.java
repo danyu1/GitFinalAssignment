@@ -51,18 +51,52 @@ public class Index {
             totalBlobs++;
             for (int i = 0; i < keyValuePairs.size(); i++) {
                 if (totalBlobs == 1) {
-                    sb.append(keyValuePairs.get(i));
+                    sb.append(format(keyValuePairs.get(i)));
                 } else {
                     // makes sure that \n is printed appropriately
                     if (i == 0) {
-                        sb.append(keyValuePairs.get(i));
+                        sb.append(format(keyValuePairs.get(i)));
                     } else {
-                        sb.append("\n" + keyValuePairs.get(i));
+                        sb.append("\n" + format(keyValuePairs.get(i)));
                     }
                 }
             }
             Files.writeString(p, sb.toString(), StandardCharsets.ISO_8859_1);
         }
+    }
+
+    public void addTree(String directoryName) throws Exception {
+        File file = new File(directoryName);
+        if (file.isDirectory()) {
+            String hashedTree = Tree.addDirectory(directoryName);
+            Path p = Paths.get("index");
+            if (!keyValuePairs.contains("tree : " + hashedTree)) {
+                StringBuilder sb = new StringBuilder();
+                keyValuePairs.add("tree : " + hashedTree);
+                totalBlobs++;
+                for (int i = 0; i < keyValuePairs.size(); i++) {
+                    if (totalBlobs == 1) {
+                        sb.append(keyValuePairs.get(i) + " : " + directoryName);
+                    } else {
+                        if (i == 0) {
+                            sb.append(keyValuePairs.get(i) + " : " + directoryName);
+                        } else {
+                            sb.append("\n" + keyValuePairs.get(i) + " : " + directoryName);
+                        }
+                    }
+                }
+                Files.writeString(p, sb.toString(), StandardCharsets.ISO_8859_1);
+            }
+        } else {
+            throw new Exception("This is not a valid directory");
+        }
+    }
+
+    public String format(String valuePair) {
+        String formatted = "blob : ";
+        formatted += valuePair.substring(valuePair.lastIndexOf(":") + 1);
+        formatted += valuePair.substring(0, valuePair.lastIndexOf(":") - 1);
+        return formatted;
     }
 
     // create a path to the index file
@@ -116,7 +150,7 @@ public class Index {
         i.add("test.txt");
         i.add("test_input.txt");
         i.add("input.txt");
-        i.add("junit_example_test2.txt");
+        // i.add("junit_example_test2.txt");
         i.remove("test.txt");
     }
 }
