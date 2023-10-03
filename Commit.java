@@ -105,22 +105,43 @@ public class Commit {
     // create a tree and generate a base sha1 for an empty file
     public String createTree() throws Exception {
         this.tree = new Tree();
+        // read index contents and add them all to the tree
+        File indexFile = new File("index");
+        BufferedReader br = new BufferedReader(new FileReader(indexFile));
+        while (br.ready()) {
+            String toAdd = br.readLine();
+            if (toAdd.contains("\n")) {
+                toAdd.substring(0, toAdd.length() - 2);
+            }
+            tree.add(toAdd);
+        }
+        br.close();
+        String toOverride = "";
+        Files.write(Paths.get(indexFile.getName()), toOverride.getBytes());
         this.tree.generateBlob();
         this.treeHash = tree.getTreeSha();
+        String toPrint = "tree : " + treeHash;
+        Files.write(Paths.get(indexFile.getName()), toPrint.getBytes());
         return this.treeHash;
     }
 
-    // just in case typa method
-    public void setNextCommit(Commit commit) throws Exception {
-        this.nextCommit = commit.getTreeHash();
-        toPrint = new StringBuilder();
-        toPrint.append(treeHash + "\n");
-        toPrint.append(this.prevCommit + "\n");
-        toPrint.append(this.nextCommit + "\n");
-        toPrint.append(this.author + "\n");
-        toPrint.append(this.date + "\n");
-        toPrint.append(summary);
-        save();
+    public String getCommitTree(String commitSHA1) throws Exception {
+        Path pathToCommit = Paths.get("objects", commitSHA1);
+        String commitTreeHash = "A commit was never found";
+        if (Files.exists(pathToCommit)) {
+            File commit = new File(Paths.get("objects", commitSHA1).toString());
+            BufferedReader br = new BufferedReader(new FileReader(commit));
+            while (br.ready()) {
+                String currentRead = br.readLine();
+                if (currentRead.contains("tree : ") && currentRead.length() == 47) {
+                    commitTreeHash = currentRead;
+                }
+            }
+            br.close();
+        } else {
+            throw new Exception("Commit blob couldn't be found, try another hash.");
+        }
+        return commitTreeHash;
     }
 
     public void addToTree(String fileName) throws Exception {
