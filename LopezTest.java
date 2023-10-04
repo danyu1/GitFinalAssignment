@@ -5,7 +5,7 @@ public class LopezTest {
     public static String testFolder = "testFolder";
     public static  String testFolder1 = "testFolder/innerFolder";
 
-
+    // Pass this demo test to see if the tree is working
     public static void main(String[] args) throws Exception {
         generateFilesAndFolders();
        
