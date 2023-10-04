@@ -146,6 +146,16 @@ public class Index {
         }
     }
 
+    public static String getBlobHash(String fileName) {
+        String blobHash = "a hash was not found with given file name";
+        for (String entry : keyValuePairs) {
+            if (entry.contains(fileName)) {
+                blobHash = entry.substring(entry.lastIndexOf(":") + 2);
+            }
+        }
+        return blobHash;
+    }
+
     public static void main(String[] args) throws Exception {
         Index i = new Index();
         i.add("test.txt");
