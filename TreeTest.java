@@ -18,7 +18,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class TreeTest {
-        static String pathToWorkSpace = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment";
+        static String testingDirectory = "testFiles";
+        static String objectsDirectory = "objects";
         static Index index;
         static Tree tree;
 
@@ -26,8 +27,11 @@ public class TreeTest {
         static void setUpBefore() throws Exception {
                 tree = new Tree();
                 index = new Index();
-                File file1 = new File(pathToWorkSpace + "\\junit_example_test1.txt");
-                File file2 = new File(pathToWorkSpace + "\\junit_example_test2.txt");
+                File folder = new File(testingDirectory);
+                folder.mkdir();
+
+                File file1 = new File(testingDirectory + "/junit_example_test1.txt");
+                File file2 = new File(testingDirectory + "/junit_example_test2.txt");
                 file1.createNewFile();
                 file2.createNewFile();
                 PrintWriter pw1 = new PrintWriter(file1);
@@ -69,7 +73,7 @@ public class TreeTest {
                 tree.add(blob2ToAdd);
                 tree.generateBlob();
 
-                File f1 = new File(pathToWorkSpace + "\\objects", tree.getTreeSha());
+                File f1 = new File(objectsDirectory, tree.getTreeSha());
                 BufferedReader br = new BufferedReader(new FileReader(f1));
 
                 // assert that the correct string is added to the tree file which should also
@@ -81,8 +85,7 @@ public class TreeTest {
                 br.close();
 
                 // delete the tree file within the objects folder
-                Path p1 = Paths.get(
-                                "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\objects\\f9b2d51bde55c0b0a062f886df52b9e572e3fe59");
+                Path p1 = Paths.get(objectsDirectory + "/" + "f9b2d51bde55c0b0a062f886df52b9e572e3fe59");
                 Files.delete(p1);
                 tree.remove(blob1ToAdd);
                 tree.remove(blob2ToAdd);
@@ -101,8 +104,7 @@ public class TreeTest {
                 assertEquals("f9b2d51bde55c0b0a062f886df52b9e572e3fe59", tree.getTreeSha());
 
                 // delete the tree file within the objects folder
-                Path p1 = Paths.get(
-                                "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\objects\\f9b2d51bde55c0b0a062f886df52b9e572e3fe59");
+                Path p1 = Paths.get(objectsDirectory + "/" + "f9b2d51bde55c0b0a062f886df52b9e572e3fe59");
                 Files.delete(p1);
                 tree.remove(blob1ToAdd);
                 tree.remove(blob2ToAdd);
@@ -118,7 +120,7 @@ public class TreeTest {
                 tree.remove(blob1ToAdd);
                 tree.generateBlob();
 
-                File f1 = new File(pathToWorkSpace + "\\objects", tree.getTreeSha());
+                File f1 = new File(objectsDirectory, tree.getTreeSha());
                 BufferedReader br = new BufferedReader(new FileReader(f1));
 
                 // assert that the tree file has removed the correct blob if the first blob was
@@ -129,8 +131,7 @@ public class TreeTest {
                 br.close();
 
                 // delete the tree file within the objects folder
-                Path p1 = Paths.get(
-                                "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\objects\\6c46dfe94cf8635fefbfda573f0344345eb6128c");
+                Path p1 = Paths.get(objectsDirectory + "/" + "6c46dfe94cf8635fefbfda573f0344345eb6128c");
                 Files.delete(p1);
                 tree.remove(blob2ToAdd);
         }
@@ -138,11 +139,12 @@ public class TreeTest {
         @Test
         @DisplayName("Test add directory without nested folders.")
         void testAddDirectory1() throws Exception {
-                File folder1 = new File("C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\test1");
+                String folderName = "test1";
+                File folder1 = new File(folderName);
                 folder1.mkdir();
-                File file1 = new File(folder1.getPath() + "\\examplefile1.txt");
-                File file2 = new File(folder1.getPath() + "\\examplefile2.txt");
-                File file3 = new File(folder1.getPath() + "\\examplefile3.txt");
+                File file1 = new File(folderName + "/examplefile1.txt");
+                File file2 = new File(folderName + "/examplefile2.txt");
+                File file3 = new File(folderName + "/examplefile3.txt");
                 PrintWriter pw1 = new PrintWriter(file1);
                 PrintWriter pw2 = new PrintWriter(file2);
                 PrintWriter pw3 = new PrintWriter(file3);
@@ -154,7 +156,7 @@ public class TreeTest {
                 pw3.close();
 
                 Tree tree = new Tree();
-                tree.addDirectory(folder1.getPath());
+                tree.addDirectory(folderName);
 
                 assertEquals("43b30f483e15a64a6afe4096f805128407574940", tree.getTreeSha());
 
@@ -162,8 +164,7 @@ public class TreeTest {
                 Files.delete(Paths.get(file2.getPath()));
                 Files.delete(Paths.get(file3.getPath()));
                 Files.delete(Paths.get(folder1.getPath()));
-                Files.deleteIfExists(Paths.get(
-                                "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\objects\\43b30f483e15a64a6afe4096f805128407574940"));
+                Files.deleteIfExists(Paths.get(objectsDirectory + "/" + "43b30f483e15a64a6afe4096f805128407574940"));
 
         }
 

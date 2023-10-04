@@ -64,7 +64,7 @@ public class Blob {
             contents.append(br.readLine());
         }
         br.close();
-        Path objectFilePath = Paths.get(Paths.get("objects").toString() + "\\" + generateSHA1(fileName));
+        Path objectFilePath = Paths.get(Paths.get("objects").toString() + "/" + generateSHA1(fileName));
         Files.write(objectFilePath, contents.toString().getBytes());
         System.out.println("New file created with SHA-1 hash as filename: " + objectFilePath);
     }
@@ -77,7 +77,7 @@ public class Blob {
             contents.append(br.readLine());
         }
         br.close();
-        Path objectFilePath = Paths.get(Paths.get("objects").toString() + "\\" + generateSHA1WithPath(pathToBlob));
+        Path objectFilePath = Paths.get(Paths.get("objects").toString() + "/" + generateSHA1WithPath(pathToBlob));
         Files.write(objectFilePath, contents.toString().getBytes());
         System.out.println("New file created with SHA-1 hash as filename: " + objectFilePath);
     }
