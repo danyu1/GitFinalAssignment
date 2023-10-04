@@ -67,8 +67,9 @@ public class Index {
 
     public void addTree(String directoryName) throws Exception {
         File file = new File(directoryName);
+        Tree t = new Tree();
         if (file.isDirectory()) {
-            String hashedTree = Tree.addDirectory(directoryName);
+            String hashedTree = t.addDirectory(directoryName);
             Path p = Paths.get("index");
             if (!keyValuePairs.contains("tree : " + hashedTree)) {
                 StringBuilder sb = new StringBuilder();
