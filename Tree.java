@@ -4,11 +4,11 @@ import java.security.*;
 import java.util.*;
 
 public class Tree {
-    // static String pathToWorkSpace = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment";
+    static String pathToWorkSpace = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment";
 
     private List<String> entries = new ArrayList<>();
     private String sha1;
-    // private String directorySha1;
+    private String directorySha1;
 
     public void add(String entry) throws Exception {
         entries.add(entry);
@@ -23,7 +23,7 @@ public class Tree {
         updateTreeFile();
     }
 
-    public String addDirectory(String directoryPath) throws Exception {
+    public static String addDirectory(String directoryPath) throws Exception {
         Tree childTree = new Tree();
         Path pathToFolder = Paths.get(directoryPath);
         File currentDirectory = new File(pathToFolder.toString());
@@ -35,7 +35,7 @@ public class Tree {
         if (Files.isDirectory(pathToFolder)) {
             for (File currentFile : files) {
                 if (currentFile.isDirectory()) {
-                    String subDirectoryPath = directoryPath + "/" + currentFile.getName();
+                    String subDirectoryPath = directoryPath + "\\" + currentFile.getName();
                     String shaOfDirectoryBlobs = addDirectory(subDirectoryPath);
                     childTree.add("tree : " + shaOfDirectoryBlobs + " : " + currentFile.getName());
                 }
@@ -57,7 +57,8 @@ public class Tree {
     // other classes
     public void updateTreeFile() throws Exception {
         StringBuilder sb = new StringBuilder("");
-        BufferedReader br = new BufferedReader(new FileReader(new File(Paths.get("tree").toString())));
+        BufferedReader br = new BufferedReader(
+                new FileReader(new File(Paths.get(pathToWorkSpace + "\\tree").toString())));
         while (br.ready()) {
             sb.append(br.readLine() + "\n");
         }
@@ -65,7 +66,7 @@ public class Tree {
         for (String entry : entries) {
             sb.append(entry).append("\n");
         }
-        Files.write(Paths.get("tree"), sb.toString().getBytes());
+        Files.write(Paths.get(pathToWorkSpace + "\\tree"), sb.toString().getBytes());
     }
 
     public String getTreeSha() {
@@ -94,7 +95,7 @@ public class Tree {
             content.append(entry).append("\n");
         }
         // Create the blob file in the 'objects' folder
-        Path blobPath = Paths.get("objects/", generateTreeSHA());
+        Path blobPath = Paths.get(pathToWorkSpace + "\\objects\\", generateTreeSHA());
         Files.write(blobPath, content.toString().getBytes());
     }
 
@@ -141,11 +142,11 @@ public class Tree {
 
         // System.out.println("Tree SHA1: " + tree.getSha1());
 
-        // tree.addDirectory("C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\testDirectory1");
-        // File parentDirectoryFile = new File(
-        //         "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\objects\\fb360f9c09ac8c5edb2f18be5de4e80ea4c430d0");
-        // System.out.println(parentDirectoryFile.exists());
-        // System.out.println(parentDirectoryFile.toString());
+        tree.addDirectory("C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\testDirectory1");
+        File parentDirectoryFile = new File(
+                "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\objects\\fb360f9c09ac8c5edb2f18be5de4e80ea4c430d0");
+        System.out.println(parentDirectoryFile.exists());
+        System.out.println(parentDirectoryFile.toString());
         // tree.addDirectory("C:\\Users\\danie\\OneDrive\\Desktop\\Topics
         // Repos\\GitFinalAssignment\\testDirectory2");
 

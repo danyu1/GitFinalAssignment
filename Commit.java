@@ -210,7 +210,7 @@ public class Commit {
         c1.tree.add(testFile1.getName());
         c1.tree.add(testFile2.getName());
 
-        Commit c2 = new Commit("Paco", "second commit");
+        Commit c2 = new Commit(c1.generateSha1(), "Paco", "second commit");
         c2.tree.add(testFile3.getName());
         c2.tree.add(testFile4.getName());
         String directorySha = c2.tree.addDirectory(folder1.getName());
