@@ -12,8 +12,8 @@ import java.util.Date;
 public class Commit {
     Tree tree = null;
     String treeHash = "";
-    String prevCommit = null;
-    String nextCommit = null;
+    String prevCommit = "";
+    String nextCommit = "";
     String author;
     String date;
     String summary;
@@ -120,6 +120,13 @@ public class Commit {
         Files.write(Paths.get(indexFile.getName()), toOverride.getBytes());
         this.tree.generateBlob();
         this.treeHash = tree.getTreeSha();
+        // if the current commit has a previous then update index with the previous tree
+        if (!prevCommit.equals("")) {
+            File prevCommitFile = new File(Paths.get(Paths.get("objects").toString(), prevCommit).toString());
+            BufferedReader br2 = new BufferedReader(new FileReader(prevCommitFile));
+            Files.write(Paths.get(Paths.get("objects").toString(), prevCommit), ("tree : " + br.readLine()).getBytes());
+            br2.close();
+        }
         String toPrint = "tree : " + treeHash;
         Files.write(Paths.get(indexFile.getName()), toPrint.getBytes());
         return this.treeHash;
