@@ -1,8 +1,13 @@
 import static org.junit.Assert.*;
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
@@ -23,10 +28,10 @@ public class GitTest {
     static void setUpBeforeClass() throws Exception {
 
         Utils.writeStringToFile("junit_example_file_data.txt", "test file contents");
-        Utils.deleteFile("Index.txt");
-        Utils.deleteDirectory("Objects");
-        Utils.deleteFile("Tree");
-        Utils.deleteFile(TEST_TREE_FILE);
+        // Utils.deleteFile("Index.txt");
+        // Utils.deleteFile("Objects");
+        // Utils.deleteFile("Tree");
+        // Utils.deleteFile(TEST_TREE_FILE);
 
     }
 
@@ -209,5 +214,100 @@ public class GitTest {
 
         // Clean up the tree blob file
         treeBlobFile.delete();
+    }
+
+    @Test
+    public void testCommit1() throws Exception {
+        File testFile1 = new File("testFile1.txt");
+        testFile1.createNewFile();
+        Files.write(Paths.get("testFile1.txt"), "test commit content 1".getBytes());
+        File testFile2 = new File("testFile2.txt");
+        testFile2.createNewFile();
+        Files.write(Paths.get("testFile2.txt"), "test commit content 2".getBytes());
+        Commit c1 = new Commit("Paco", "initial commit");
+        c1.tree.add(testFile1.getName());
+        c1.tree.add(testFile2.getName());
+        Path commitFile = Paths.get("objects", c1.generateSha1());
+        // the sha1 exists
+        assertTrue(Files.exists(commitFile));
+        File f = new File(commitFile.toString());
+        BufferedReader br = new BufferedReader(new FileReader(f));
+        br.readLine();
+        // next sha should be blank
+        assertEquals("", br.readLine());
+        // prev sha should be blank
+        assertEquals("", br.readLine());
+        br.close();
+
+        Files.delete(Paths.get("testFile1.txt"));
+        Files.delete(Paths.get("testFile2.txt"));
+    }
+
+    @Test
+    public void testCommit2() throws Exception {
+        File testFile1 = new File("testFile1.txt");
+        testFile1.createNewFile();
+        Files.write(Paths.get("testFile1.txt"), "test commit content 1".getBytes());
+        File testFile2 = new File("testFile2.txt");
+        testFile2.createNewFile();
+        Files.write(Paths.get("testFile2.txt"), "test commit content 2".getBytes());
+        File testFile3 = new File("testFile3.txt");
+        testFile3.createNewFile();
+        Files.write(Paths.get("testFile3.txt"), "test commit content 3".getBytes());
+        File testFile4 = new File("testFile4.txt");
+        testFile4.createNewFile();
+        Files.write(Paths.get("testFile4.txt"), "test commit content 4".getBytes());
+
+        File folder1 = new File("folder1");
+        folder1.mkdir();
+        File subfile = new File(folder1.getPath(), "subfile.txt");
+        subfile.createNewFile();
+
+        Commit c1 = new Commit("Paco", "initial commit");
+        c1.tree.add(testFile1.getName());
+        c1.tree.add(testFile2.getName());
+
+        Commit c2 = new Commit("Paco", "second commit");
+        c2.tree.add(testFile3.getName());
+        c2.tree.add(testFile4.getName());
+        String directorySha = c2.tree.addDirectory(folder1.getName());
+
+        Path commitFile1 = Paths.get("objects", c1.generateSha1());
+        // the sha1 exists
+        assertTrue(Files.exists(commitFile1));
+        File f = new File(commitFile1.toString());
+        BufferedReader br = new BufferedReader(new FileReader(f));
+        br.readLine();
+        // next sha should be blank
+        assertEquals("", br.readLine());
+        // prev sha should be blank
+        assertEquals("", br.readLine());
+        br.close();
+
+        Path commitFile2 = Paths.get("objects", c2.generateSha1());
+        // the sha1 exists
+        assertTrue(Files.exists(commitFile2));
+        File f2 = new File(commitFile2.toString());
+        BufferedReader br2 = new BufferedReader(new FileReader(f2));
+        br2.readLine();
+        // next sha should be blank
+        assertEquals("", br2.readLine());
+        // prev sha should be blank
+        assertEquals("", br2.readLine());
+        br2.close();
+        // the object created by the add directory method should have this sha
+        assertEquals("e88bd5b6cf00b8369f37cd55ab53d551f0b7e9ec", directorySha);
+
+        Files.delete(Paths.get("testFile1.txt"));
+        Files.delete(Paths.get("testFile2.txt"));
+        Files.delete(Paths.get("testFile3.txt"));
+        Files.delete(Paths.get("testFile4.txt"));
+        Files.delete(Paths.get(Paths.get(folder1.getName()).toString(), subfile.getName()));
+        Files.delete(Paths.get(folder1.getName()));
+    }
+
+    @Test
+    public void testCommit3() {
+
     }
 }

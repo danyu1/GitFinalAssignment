@@ -180,12 +180,32 @@ public class Commit {
     }
 
     public static void main(String[] args) throws Exception {
-        Commit c1 = new Commit("paco", "initial commit");
-        Commit c2 = new Commit(c1.generateSha1(), "paco", "second commit");
-        Commit c3 = new Commit(c2.generateSha1(), "paco", "final commit");
-        c1.addToTree("test.txt");
-        c2.addToTree("test_input.txt");
-        c3.addToTree("input.txt");
-        System.out.println(c1.getDate());
+
+        File testFile1 = new File("testFile1.txt");
+        testFile1.createNewFile();
+        Files.write(Paths.get("testFile1.txt"), "test commit content 1".getBytes());
+        File testFile2 = new File("testFile2.txt");
+        testFile2.createNewFile();
+        Files.write(Paths.get("testFile2.txt"), "test commit content 2".getBytes());
+        File testFile3 = new File("testFile3.txt");
+        testFile3.createNewFile();
+        Files.write(Paths.get("testFile3.txt"), "test commit content 3".getBytes());
+        File testFile4 = new File("testFile4.txt");
+        testFile4.createNewFile();
+        Files.write(Paths.get("testFile4.txt"), "test commit content 4".getBytes());
+
+        File folder1 = new File("folder1");
+        folder1.mkdir();
+        File subfile = new File(folder1.getPath(), "subfile.txt");
+        subfile.createNewFile();
+
+        Commit c1 = new Commit("Paco", "initial commit");
+        c1.tree.add(testFile1.getName());
+        c1.tree.add(testFile2.getName());
+
+        Commit c2 = new Commit("Paco", "second commit");
+        c2.tree.add(testFile3.getName());
+        c2.tree.add(testFile4.getName());
+        String directorySha = c2.tree.addDirectory(folder1.getName());
     }
 }
