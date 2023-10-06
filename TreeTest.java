@@ -66,14 +66,14 @@ public class TreeTest {
 
         @Test
         void testGenerateBlob() throws Exception {
-                String blob1ToAdd = "blob : f5cda28ce12d468c64a6a2f2224971f894442f1b : junit_example_test1.txt";
-                String blob2ToAdd = "blob : 50d4b41eed4faffe212d8cf6ec89d7889dfeff9e : junit_example_test2.txt";
+                String blob1ToAdd = "junit_example_test1.txt";
+                String blob2ToAdd = "junit_example_test2.txt";
 
                 tree.add(blob1ToAdd);
                 tree.add(blob2ToAdd);
                 tree.generateBlob();
 
-                File f1 = new File(objectsDirectory, tree.getTreeSha());
+                File f1 = new File(Paths.get("objects").toString(), tree.getTreeSha());
                 BufferedReader br = new BufferedReader(new FileReader(f1));
 
                 // assert that the correct string is added to the tree file which should also
@@ -198,9 +198,9 @@ public class TreeTest {
                 subWriter.close();
 
                 Tree tree = new Tree();
-                tree.addDirectory(folderRoot.getPath());
+                String treeSha = tree.addDirectory(folderRoot.getPath());
 
-                assertEquals("ae186a310d6f6bbb1d3ea9c2f0b456fec1d49adf", tree.getTreeSha());
+                assertEquals("ae186a310d6f6bbb1d3ea9c2f0b456fec1d49adf", treeSha);
 
                 Files.delete(Paths.get(subFile.getPath()));
                 Files.delete(Paths.get(folder2.getPath()));

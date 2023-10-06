@@ -14,12 +14,16 @@ public class Blob {
     public static String generateSHA1(String fileName) throws Exception {
         File fileToHash = new File(Paths.get(fileName).toString());
         MessageDigest md = MessageDigest.getInstance("SHA-1");
-        BufferedReader br = new BufferedReader(new FileReader(fileToHash));
         StringBuilder contents = new StringBuilder();
-        while (br.ready()) {
-            contents.append(br.readLine());
+        if (!fileName.equals("")) {
+            BufferedReader br = new BufferedReader(new FileReader(fileToHash));
+            while (br.ready()) {
+                contents.append(br.readLine());
+            }
+            br.close();
+        } else {
+            contents.append("");
         }
-        br.close();
         byte[] hash = md.digest(contents.toString().getBytes());
         StringBuilder hexString = new StringBuilder();
         for (byte b : hash) {
