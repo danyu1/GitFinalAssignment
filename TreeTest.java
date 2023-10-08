@@ -61,8 +61,8 @@ public class TreeTest {
 
         @Test
         void testAdd() throws Exception {
-                String blob1ToAdd = "blob : f5cda28ce12d468c64a6a2f2224971f894442f1b : junit_example_test1.txt";
-                String blob2ToAdd = "blob : 50d4b41eed4faffe212d8cf6ec89d7889dfeff9e : junit_example_test2.txt";
+                String blob1ToAdd = "junit_example_test1.txt";
+                String blob2ToAdd = "junit_example_test2.txt";
 
                 tree.add(blob1ToAdd);
                 tree.add(blob2ToAdd);
@@ -127,8 +127,8 @@ public class TreeTest {
 
         @Test
         void testGetSha1() throws Exception {
-                String blob1ToAdd = "Blob : f5cda28ce12d468c64a6a2f2224971f894442f1b : junit_example_test1.txt";
-                String blob2ToAdd = "Blob : 50d4b41eed4faffe212d8cf6ec89d7889dfeff9e : junit_example_test2.txt";
+                String blob1ToAdd = "junit_example_test1.txt";
+                String blob2ToAdd = "junit_example_test2.txt";
 
                 tree.add(blob1ToAdd);
                 tree.add(blob2ToAdd);
@@ -146,8 +146,8 @@ public class TreeTest {
 
         @Test
         void testRemove() throws Exception {
-                String blob1ToAdd = "Blob : f5cda28ce12d468c64a6a2f2224971f894442f1b : junit_example_test1.txt";
-                String blob2ToAdd = "Blob : 50d4b41eed4faffe212d8cf6ec89d7889dfeff9e : junit_example_test2.txt";
+                String blob1ToAdd = "junit_example_test1.txt";
+                String blob2ToAdd = "junit_example_test2.txt";
 
                 tree.add(blob1ToAdd);
                 tree.add(blob2ToAdd);
@@ -160,7 +160,7 @@ public class TreeTest {
                 // assert that the tree file has removed the correct blob if the first blob was
                 // removed than the first line of the file should contain the second file
                 // created
-                assertEquals("Blob : 50d4b41eed4faffe212d8cf6ec89d7889dfeff9e : junit_example_test2.txt",
+                assertEquals("junit_example_test2.txt",
                                 br.readLine());
                 br.close();
 
@@ -190,9 +190,9 @@ public class TreeTest {
                 pw3.close();
 
                 Tree tree = new Tree();
-                tree.addDirectory(folderName);
+                String treeSha = tree.addDirectory(folderName);
 
-                assertEquals("43b30f483e15a64a6afe4096f805128407574940", tree.getTreeSha());
+                assertEquals("43b30f483e15a64a6afe4096f805128407574940", treeSha);
 
                 Files.delete(Paths.get(file1.getPath()));
                 Files.delete(Paths.get(file2.getPath()));
@@ -205,12 +205,9 @@ public class TreeTest {
         @Test
         @DisplayName("Test add directory with nested folders and files.")
         void testAddDirectory2() throws Exception {
-                File folderRoot = new File(
-                                "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\AdvancedTest");
-                File folder1 = new File(
-                                "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\AdvancedTest\\test3");
-                File folder2 = new File(
-                                "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\AdvancedTest\\test5");
+                File folderRoot = new File(Paths.get("AdvancedTest").toString());
+                File folder1 = new File(Paths.get(Paths.get("AdvancedTest").toString(), "test3").toString());
+                File folder2 = new File(Paths.get(Paths.get("AdvancedTest").toString(), "test5").toString());
                 folderRoot.mkdir();
                 folder1.mkdir();
                 folder2.mkdir();
@@ -243,12 +240,11 @@ public class TreeTest {
                 Files.delete(Paths.get(file2.getPath()));
                 Files.delete(Paths.get(file3.getPath()));
                 Files.delete(Paths.get(folderRoot.getPath()));
-                Files.deleteIfExists(Paths.get(
-                                "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\objects\\502495e9806be809cf5e009432fcc9714489a9bf"));
-                Files.deleteIfExists(Paths.get(
-                                "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\objects\\ae186a310d6f6bbb1d3ea9c2f0b456fec1d49adf"));
-                Files.deleteIfExists(Paths.get(
-                                "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\objects\\da39a3ee5e6b4b0d3255bfef95601890afd80709"));
-
+                Files.deleteIfExists(Paths.get((Paths.get("objects").toString()),
+                                "502495e9806be809cf5e009432fcc9714489a9bf"));
+                Files.deleteIfExists(Paths.get((Paths.get("objects").toString()),
+                                "502495e9806be809cf5e009432fcc9714489a9bf"));
+                Files.deleteIfExists(Paths.get((Paths.get("objects").toString()),
+                                "502495e9806be809cf5e009432fcc9714489a9bf"));
         }
 }

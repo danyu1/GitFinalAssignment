@@ -1,3 +1,4 @@
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.*;
@@ -22,26 +23,29 @@ public class Tree {
     // tree : HASH : folderName
     public void add(String fileName) throws Exception {
         File fileToAdd = new File(fileName);
-        if (!fileToAdd.exists()) {
-            String isTree = fileName.substring(0, 6);
-            if (!isTree.equals("tree :")) {
-                throw new Exception("Invalid file to add");
-            }
-        }
         if (fileToAdd.exists()) {
             entries.add(fileName);
-            updateTreeFileAdd();
+            updateTreeFileAdd("");
         } else {
-
+            if (fileName.contains("Blob : ") || fileName.contains("tree : ")) {
+                entries.add(fileName);
+                updateTreeFileAdd(fileName);
+            }
         }
     }
 
     public void remove(String entry) throws Exception {
-        for (String currentEntry : entries) {
-            currentEntry.contains(entry);
-            entries.remove(currentEntry);
+        // to prevent concurrent modification error
+        if (entries.size() == 1) {
+            if (entries.get(0).contains(entry))
+                entries.remove(0);
+        } else {
+            for (String currentEntry : entries) {
+                if (currentEntry.contains(entry))
+                    entries.remove(currentEntry);
+            }
         }
-        updateTreeFileAdd();
+        updateTreeFileRemove(entry);
     }
 
     public static String addDirectory(String directoryPath) throws Exception {
@@ -76,9 +80,7 @@ public class Tree {
         return childTree.getTreeSha();
     }
 
-    // in this case "tree" file is called index due to previous choices made in
-    // other classes
-    public void updateTreeFileAdd() throws Exception {
+    public void updateTreeFileAdd(String fileName) throws Exception {
         StringBuilder currentTreeFile = new StringBuilder("");
         BufferedReader br = new BufferedReader(
                 new FileReader(new File(Paths.get(pathToWorkSpace + "\\tree").toString())));
@@ -86,16 +88,35 @@ public class Tree {
             currentTreeFile.append(br.readLine() + "\n");
         }
         br.close();
-        for (String entry : entries) {
-            if (!entry.contains("tree : ") && !entry.contains("Blob : ")) {
-                if (!currentTreeFile.toString().contains(entry))
-                    currentTreeFile.append("Blob : " + Blob.generateSHA1(entry)).append(" : " + entry).append("\n");
-            } else {
-                if (!currentTreeFile.toString().contains(entry)) {
-                    currentTreeFile.append(entry).append("\n");
+        if (fileName.contains("Blob : ") || fileName.contains("tree : ")) {
+            currentTreeFile.append(fileName);
+        } else {
+            for (String entry : entries) {
+                if (!entry.contains("tree : ") && !entry.contains("Blob : ")) {
+                    if (!currentTreeFile.toString().contains(entry))
+                        currentTreeFile.append("Blob : " + Blob.generateSHA1(entry)).append(" : " + entry).append("\n");
+                } else {
+                    if (!currentTreeFile.toString().contains(entry)) {
+                        currentTreeFile.append(entry).append("\n");
+                    }
                 }
             }
         }
+        Files.write(Paths.get(pathToWorkSpace + "\\tree"), currentTreeFile.toString().getBytes());
+        generateTreeSHA();
+    }
+
+    public void updateTreeFileRemove(String toRemove) throws Exception {
+        StringBuilder currentTreeFile = new StringBuilder("");
+        BufferedReader br = new BufferedReader(
+                new FileReader(new File(Paths.get(pathToWorkSpace + "\\tree").toString())));
+        String currentLine = "";
+        while (br.ready()) {
+            currentLine = br.readLine();
+            if (!currentLine.contains(toRemove))
+                currentTreeFile.append(currentLine + "\n");
+        }
+
         br.close();
         Files.write(Paths.get(pathToWorkSpace + "\\tree"), currentTreeFile.toString().getBytes());
         generateTreeSHA();
@@ -127,7 +148,9 @@ public class Tree {
             content.append(entry).append("\n");
         }
         // Create the blob file in the 'objects' folder
-        Path blobPath = Paths.get(pathToWorkSpace + "\\objects\\", generateTreeSHA());
+        Path blobPath = Paths.get(Paths.get("objects").toString(), generateTreeSHA());
+        File treeObject = new File(blobPath.toString());
+        treeObject.createNewFile();
         Files.write(blobPath, content.toString().getBytes());
     }
 
@@ -154,25 +177,55 @@ public class Tree {
 
     public static void main(String[] args) throws Exception {
         Tree tree = new Tree();
-        // Add entries to the tree
-        tree.add("testFile1.txt");
-        tree.add("tree : bd1ccec139dead5ee0d8c3a0499b42a7d43ac44b");
+        // // Add entries to the tree
+        // tree.add("testFile1.txt");
+        // tree.add("tree : bd1ccec139dead5ee0d8c3a0499b42a7d43ac44b");
 
-        // Generate and save the tree blob
-        tree.generateBlob();
+        // // Generate and save the tree blob
+        // tree.generateBlob();
 
-        // Check if the tree blob file exists in the 'objects' folder
-        File treeBlobFile = new File(Paths.get(Paths.get("objects").toString(), tree.getTreeSha()).toString());
-        System.out.println(treeBlobFile.exists());
+        // // Check if the tree blob file exists in the 'objects' folder
+        // File treeBlobFile = new File(Paths.get(Paths.get("objects").toString(),
+        // tree.getTreeSha()).toString());
+        // System.out.println(treeBlobFile.exists());
 
-        System.out.println("Tree SHA1: " + tree.getTreeSha());
+        // System.out.println("Tree SHA1: " + tree.getTreeSha());
 
-        tree.addDirectory("C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\testDirectory1");
-        File parentDirectoryFile = new File(
-                "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\objects\\fb360f9c09ac8c5edb2f18be5de4e80ea4c430d0");
-        System.out.println(parentDirectoryFile.exists());
-        System.out.println(parentDirectoryFile.toString());
-        tree.addDirectory("C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\testDirectory2");
+        // tree.addDirectory("C:\\Users\\danie\\OneDrive\\Desktop\\Topics
+        // Repos\\GitFinalAssignment\\testDirectory1");
+        // File parentDirectoryFile = new File(
+        // "C:\\Users\\danie\\OneDrive\\Desktop\\Topics
+        // Repos\\GitFinalAssignment\\objects\\fb360f9c09ac8c5edb2f18be5de4e80ea4c430d0");
+        // System.out.println(parentDirectoryFile.exists());
+        // System.out.println(parentDirectoryFile.toString());
+        // tree.addDirectory("C:\\Users\\danie\\OneDrive\\Desktop\\Topics
+        // Repos\\GitFinalAssignment\\testDirectory2");
+        String folderName = "test1";
+        File folder1 = new File(folderName);
+        folder1.mkdir();
+        File file1 = new File(folderName + "/examplefile1.txt");
+        File file2 = new File(folderName + "/examplefile2.txt");
+        File file3 = new File(folderName + "/examplefile3.txt");
+        PrintWriter pw1 = new PrintWriter(file1);
+        PrintWriter pw2 = new PrintWriter(file2);
+        PrintWriter pw3 = new PrintWriter(file3);
+        pw1.print("new contents for file one");
+        pw2.print("new contents for file two");
+        pw3.print("new contents for file three");
+        pw1.close();
+        pw2.close();
+        pw3.close();
+
+        tree.addDirectory(folderName);
+
+        assertEquals("43b30f483e15a64a6afe4096f805128407574940", tree.getTreeSha());
+
+        Files.delete(Paths.get(file1.getPath()));
+        Files.delete(Paths.get(file2.getPath()));
+        Files.delete(Paths.get(file3.getPath()));
+        Files.delete(Paths.get(folder1.getPath()));
+        Files.deleteIfExists(
+                Paths.get(Paths.get("objects").toString() + "/" + "43b30f483e15a64a6afe4096f805128407574940"));
 
     }
 }
