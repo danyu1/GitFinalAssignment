@@ -3,19 +3,19 @@ import java.nio.file.Files;
 
 public class LopezTest {
     public static String testFolder = "testFolder";
-    public static  String testFolder1 = "testFolder/innerFolder";
+    public static String testFolder1 = "testFolder/innerFolder";
 
     // Pass this demo test to see if the tree is working
     public static void main(String[] args) throws Exception {
         generateFilesAndFolders();
-       
+
         Tree tree = new Tree();
         String treeSHA = tree.addDirectory(testFolder);
 
         System.out.println("Tree SHA: " + treeSHA);
 
     }
-    
+
     public static void generateFilesAndFolders() throws Exception {
         File folder = new File(testFolder);
         folder.mkdir();
@@ -55,7 +55,7 @@ public class LopezTest {
         }
     }
 
-       public static void writeToFile(File file, String content) throws Exception {
+    public static void writeToFile(File file, String content) throws Exception {
         Files.write(file.toPath(), content.getBytes());
     }
 }

@@ -93,6 +93,8 @@ public class Blob {
         }
         br.close();
         Path objectFilePath = Paths.get(Paths.get("objects").toString() + "/" + generateSHA1WithPath(pathToBlob));
+        File blob = new File(objectFilePath.toString());
+        blob.createNewFile();
         Files.write(objectFilePath, contents.toString().getBytes());
         System.out.println("New file created with SHA-1 hash as filename: " + objectFilePath);
     }
