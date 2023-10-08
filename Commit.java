@@ -41,8 +41,7 @@ public class Commit {
         toPrint.append(summary);
         this.pathToCommit = Paths.get(Paths.get("objects").toString(), prevCommit).toString();
         // update the next line of the previous commit
-        // updatePrevNextCommit();
-        save();
+        updatePrevNextCommit();
     }
 
     // constructor for the first commit with no parent or next
@@ -62,7 +61,6 @@ public class Commit {
         toPrint.append(this.author + "\n");
         toPrint.append(this.date + "\n");
         toPrint.append(summary);
-        save();
     }
 
     public void save() throws Exception {
@@ -166,7 +164,6 @@ public class Commit {
         this.toPrint = new StringBuilder("");
         toPrint.append(this.treeHash + "\n" + this.prevCommit + "\n" + this.nextCommit + "\n" + this.author + "\n"
                 + this.date + "\n" + this.summary);
-        save();
     }
 
     // read the parentCommit that has the updated "next" value and update this
@@ -187,7 +184,7 @@ public class Commit {
     }
 
     public static void main(String[] args) throws Exception {
-
+        Index index = new Index();
         File testFile1 = new File("testFile1.txt");
         testFile1.createNewFile();
         Files.write(Paths.get("testFile1.txt"), "test commit content 1".getBytes());
@@ -206,13 +203,15 @@ public class Commit {
         File subfile = new File(folder1.getPath(), "subfile.txt");
         subfile.createNewFile();
 
+        index.add("testFile1.txt");
+        index.add("testFile2.txt");
         Commit c1 = new Commit("Paco", "initial commit");
-        c1.tree.add(testFile1.getName());
-        c1.tree.add(testFile2.getName());
+        c1.save();
 
         Commit c2 = new Commit(c1.generateSha1(), "Paco", "second commit");
-        c2.tree.add(testFile3.getName());
-        c2.tree.add(testFile4.getName());
-        String directorySha = c2.tree.addDirectory(folder1.getName());
+        // c2.addToTree(testFile3.getName());
+        // c2.addToTree(testFile4.getName());
+        // String directorySha = c2.tree.addDirectory(folder1.getName());
+        c2.save();
     }
 }

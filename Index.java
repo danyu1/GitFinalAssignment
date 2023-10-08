@@ -163,5 +163,6 @@ public class Index {
         i.add("input.txt");
         // i.add("junit_example_test2.txt");
         i.remove("test.txt");
+        i.addTree("testFiles");
     }
 }
