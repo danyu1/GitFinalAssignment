@@ -1,4 +1,7 @@
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,9 +23,9 @@ import org.junit.jupiter.api.Test;
 public class GitTest {
 
     private static final String TEST_INPUT_FILE = "test_input.txt";
-    private static final String TEST_INDEX_FOLDER = "test_index";
-    private static final String TEST_OBJECTS_FOLDER = "test_objects";
-    private static final String TEST_TREE_FILE = "test_tree.txt";
+    private static final String TEST_INDEX_FOLDER = "index";
+    private static final String TEST_OBJECTS_FOLDER = "objects";
+    private static final String TEST_TREE_FILE = "tree";
 
     @BeforeAll
     static void setUpBeforeClass() throws Exception {
@@ -74,14 +77,14 @@ public class GitTest {
 
     // Utility method to create a test input file
     private void createTestInputFile(String filename) throws IOException {
-        FileWriter writer = new FileWriter(filename);
-        writer.write("This is a test.");
-        writer.close();
+        File TEST_FILE = new File(filename);
+        TEST_FILE.createNewFile();
+        Files.write(Paths.get(filename), "This is a test.".getBytes());
     }
 
     // Utility method to delete a test input file
     private void deleteTestInputFile(String filename) {
-        File file = new File(filename);
+        File file = new File(Paths.get(filename).toString());
         if (file.exists()) {
             file.delete();
         }
@@ -98,7 +101,7 @@ public class GitTest {
         Index index = new Index();
 
         // Check if the index and objects folders were created
-        assertTrue(folderExists(TEST_INDEX_FOLDER));
+        assertTrue(Files.exists(Paths.get(TEST_INDEX_FOLDER)));
         assertTrue(folderExists(TEST_OBJECTS_FOLDER));
 
         // Clean up by deleting the test folders
@@ -108,13 +111,13 @@ public class GitTest {
 
     // Utility method to check if a folder exists
     private boolean folderExists(String folderName) {
-        File folder = new File(folderName);
+        File folder = new File(Paths.get(folderName).toString());
         return folder.exists() && folder.isDirectory();
     }
 
     // Utility method to delete a test folder
     private void deleteTestFolder(String folderName) {
-        File folder = new File(folderName);
+        File folder = new File(Paths.get(folderName).toString());
         if (folder.exists() && folder.isDirectory()) {
             File[] files = folder.listFiles();
             if (files != null) {
@@ -147,7 +150,7 @@ public class GitTest {
             assertTrue(blobFile.exists());
         } finally {
             // Clean up the test input file and the added blob
-            deleteTestInputFile(TEST_INPUT_FILE);
+            // deleteTestInputFile(TEST_INPUT_FILE);
             index.remove(TEST_INPUT_FILE);
         }
     }
@@ -187,30 +190,30 @@ public class GitTest {
         Tree tree = new Tree();
 
         // Add entries to the tree
-        tree.add("blob : 81e0268c84067377a0a1fdfb5cc996c93f6dcf9f : file1.txt");
+        tree.add("testFile1.txt");
         tree.add("tree : bd1ccec139dead5ee0d8c3a0499b42a7d43ac44b");
 
         // Generate and save the tree blob
         tree.generateBlob();
 
         // Check if the tree blob file exists in the 'objects' folder
-        File treeBlobFile = new File("./objects/" + tree.getTreeSha());
+        File treeBlobFile = new File(Paths.get(Paths.get("objects").toString(), tree.getTreeSha()).toString());
         assertTrue(treeBlobFile.exists());
 
         // Read the contents of the tree blob file
         List<String> blobLines = Files.readAllLines(treeBlobFile.toPath());
 
         // Check if the blob contains the expected entries
-        assertTrue(blobLines.contains("blob : 81e0268c84067377a0a1fdfb5cc996c93f6dcf9f : file1.txt"));
+        assertTrue(blobLines.contains("blob : 81e0268c84067377a0a1fdfb5cc996c93f6dcf9f : testFile1.txt"));
         assertTrue(blobLines.contains("tree : bd1ccec139dead5ee0d8c3a0499b42a7d43ac44b"));
 
         // Remove an entry and generate the updated blob
-        tree.remove("blob : 81e0268c84067377a0a1fdfb5cc996c93f6dcf9f : file1.txt");
+        tree.remove("testFile1.txt");
         tree.generateBlob();
 
         // Check if the removed entry is no longer present in the blob
         blobLines = Files.readAllLines(treeBlobFile.toPath());
-        assertTrue(blobLines.contains("blob : 81e0268c84067377a0a1fdfb5cc996c93f6dcf9f : file1.txt"));
+        assertTrue(blobLines.contains("blob : 81e0268c84067377a0a1fdfb5cc996c93f6dcf9f : testFile1.txt"));
 
         // Clean up the tree blob file
         treeBlobFile.delete();

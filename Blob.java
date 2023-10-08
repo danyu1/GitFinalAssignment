@@ -57,6 +57,17 @@ public class Blob {
         return hexString.toString();
     }
 
+    public static String readFile(String fileName) throws Exception {
+        File file = new File(fileName);
+        BufferedReader br = new BufferedReader(new FileReader(file));
+        StringBuilder contents = new StringBuilder();
+        while (br.ready()) {
+            contents.append(br.readLine());
+        }
+        br.close();
+        return contents.toString();
+    }
+
     // convert the original file into byte
     // New file path that accesses objects folder which can access SHA1 file
     // Create a new file with the SHA-1 hash as the filename inside 'objects' folder

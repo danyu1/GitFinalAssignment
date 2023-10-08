@@ -1,6 +1,5 @@
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,16 +21,15 @@ public class TreeTest {
         static String objectsDirectory = "objects";
         static Index index;
         static Tree tree;
+        static String TEST_FILE = "test_file.txt";
 
         @BeforeAll
         static void setUpBefore() throws Exception {
                 tree = new Tree();
                 index = new Index();
-                File folder = new File(testingDirectory);
-                folder.mkdir();
 
-                File file1 = new File(testingDirectory + "/junit_example_test1.txt");
-                File file2 = new File(testingDirectory + "/junit_example_test2.txt");
+                File file1 = new File("junit_example_test1.txt");
+                File file2 = new File("junit_example_test2.txt");
                 file1.createNewFile();
                 file2.createNewFile();
                 PrintWriter pw1 = new PrintWriter(file1);
@@ -50,6 +48,17 @@ public class TreeTest {
                 Utils.deleteDirectory("objects");
         }
 
+        // a good unit test, makes sure that my constructor works properly
+        // generate a tree file
+
+        @Test
+        @DisplayName("Testing the tree constructor to make a tree file")
+        public void testTreeConstructor() throws Exception {
+                Tree tree = new Tree();
+                File treeFile = new File("tree");
+                assertTrue(treeFile.exists());
+        }
+
         @Test
         void testAdd() throws Exception {
                 String blob1ToAdd = "blob : f5cda28ce12d468c64a6a2f2224971f894442f1b : junit_example_test1.txt";
@@ -65,6 +74,31 @@ public class TreeTest {
         }
 
         @Test
+        @DisplayName("Testing if I can write to the tree")
+        public void testWriteToTree() throws Exception {
+                Tree tree = new Tree();
+
+                File treeFile = new File("tree");
+                assertTrue(treeFile.exists());
+
+                File testFile = new File(TEST_FILE);
+                testFile.createNewFile();
+                Utils.writeStringToFile(TEST_FILE, "some test content");
+
+                String fileSha = Blob.generateSHA1(TEST_FILE);
+                tree.add(TEST_FILE);
+
+                String newLine = "Blob : " + Blob.generateSHA1(TEST_FILE) + " : " + TEST_FILE;
+                String treeContents = Blob.readFile("tree");
+
+                assertEquals(newLine, treeContents);
+
+                tree.remove(TEST_FILE);
+                Path p = Paths.get(TEST_FILE);
+                Files.delete(p);
+        }
+
+        @Test
         void testGenerateBlob() throws Exception {
                 String blob1ToAdd = "junit_example_test1.txt";
                 String blob2ToAdd = "junit_example_test2.txt";
@@ -73,14 +107,14 @@ public class TreeTest {
                 tree.add(blob2ToAdd);
                 tree.generateBlob();
 
-                File f1 = new File(Paths.get("objects").toString(), tree.getTreeSha());
+                File f1 = new File("tree");
                 BufferedReader br = new BufferedReader(new FileReader(f1));
 
-                // assert that the correct string is added to the tree file which should also
+                // assert that thekj correct string is added to the tree file which should also
                 // have the correct hash as its name
-                assertEquals("blob : f5cda28ce12d468c64a6a2f2224971f894442f1b : junit_example_test1.txt",
+                assertEquals("Blob : f5cda28ce12d468c64a6a2f2224971f894442f1b : junit_example_test1.txt",
                                 br.readLine());
-                assertEquals("blob : 50d4b41eed4faffe212d8cf6ec89d7889dfeff9e : junit_example_test2.txt",
+                assertEquals("Blob : 50d4b41eed4faffe212d8cf6ec89d7889dfeff9e : junit_example_test2.txt",
                                 br.readLine());
                 br.close();
 
@@ -93,8 +127,8 @@ public class TreeTest {
 
         @Test
         void testGetSha1() throws Exception {
-                String blob1ToAdd = "blob : f5cda28ce12d468c64a6a2f2224971f894442f1b : junit_example_test1.txt";
-                String blob2ToAdd = "blob : 50d4b41eed4faffe212d8cf6ec89d7889dfeff9e : junit_example_test2.txt";
+                String blob1ToAdd = "Blob : f5cda28ce12d468c64a6a2f2224971f894442f1b : junit_example_test1.txt";
+                String blob2ToAdd = "Blob : 50d4b41eed4faffe212d8cf6ec89d7889dfeff9e : junit_example_test2.txt";
 
                 tree.add(blob1ToAdd);
                 tree.add(blob2ToAdd);
@@ -112,8 +146,8 @@ public class TreeTest {
 
         @Test
         void testRemove() throws Exception {
-                String blob1ToAdd = "blob : f5cda28ce12d468c64a6a2f2224971f894442f1b : junit_example_test1.txt";
-                String blob2ToAdd = "blob : 50d4b41eed4faffe212d8cf6ec89d7889dfeff9e : junit_example_test2.txt";
+                String blob1ToAdd = "Blob : f5cda28ce12d468c64a6a2f2224971f894442f1b : junit_example_test1.txt";
+                String blob2ToAdd = "Blob : 50d4b41eed4faffe212d8cf6ec89d7889dfeff9e : junit_example_test2.txt";
 
                 tree.add(blob1ToAdd);
                 tree.add(blob2ToAdd);
@@ -126,7 +160,7 @@ public class TreeTest {
                 // assert that the tree file has removed the correct blob if the first blob was
                 // removed than the first line of the file should contain the second file
                 // created
-                assertEquals("blob : 50d4b41eed4faffe212d8cf6ec89d7889dfeff9e : junit_example_test2.txt",
+                assertEquals("Blob : 50d4b41eed4faffe212d8cf6ec89d7889dfeff9e : junit_example_test2.txt",
                                 br.readLine());
                 br.close();
 

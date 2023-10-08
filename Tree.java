@@ -1,3 +1,5 @@
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.*;
 import java.nio.file.*;
 import java.security.*;
@@ -10,9 +12,28 @@ public class Tree {
     private String sha1;
     private String directorySha1;
 
-    public void add(String entry) throws Exception {
-        entries.add(entry);
-        updateTreeFile();
+    public Tree() throws Exception {
+        File file = new File("tree");
+        if (!file.exists())
+            file.createNewFile();
+    }
+
+    // add method should accept a fileName, or a tree string
+    // tree : HASH : folderName
+    public void add(String fileName) throws Exception {
+        File fileToAdd = new File(fileName);
+        if (!fileToAdd.exists()) {
+            String isTree = fileName.substring(0, 6);
+            if (!isTree.equals("tree :")) {
+                throw new Exception("Invalid file to add");
+            }
+        }
+        if (fileToAdd.exists()) {
+            entries.add(fileName);
+            updateTreeFileAdd();
+        } else {
+
+        }
     }
 
     public void remove(String entry) throws Exception {
@@ -20,7 +41,7 @@ public class Tree {
             currentEntry.contains(entry);
             entries.remove(currentEntry);
         }
-        updateTreeFile();
+        updateTreeFileAdd();
     }
 
     public static String addDirectory(String directoryPath) throws Exception {
@@ -57,23 +78,26 @@ public class Tree {
 
     // in this case "tree" file is called index due to previous choices made in
     // other classes
-    public void updateTreeFile() throws Exception {
-        StringBuilder sb = new StringBuilder("");
-        // BufferedReader br = new BufferedReader(
-        // new FileReader(new File(Paths.get(pathToWorkSpace + "\\tree").toString())));
-        // while (br.ready()) {
-        // sb.append(br.readLine() + "\n");
-        // }
-        // br.close();
+    public void updateTreeFileAdd() throws Exception {
+        StringBuilder currentTreeFile = new StringBuilder("");
+        BufferedReader br = new BufferedReader(
+                new FileReader(new File(Paths.get(pathToWorkSpace + "\\tree").toString())));
+        while (br.ready()) {
+            currentTreeFile.append(br.readLine() + "\n");
+        }
+        br.close();
         for (String entry : entries) {
             if (!entry.contains("tree : ") && !entry.contains("Blob : ")) {
-                sb.append("Blob : " + Blob.generateSHA1(entry)).append(entry).append("\n");
+                if (!currentTreeFile.toString().contains(entry))
+                    currentTreeFile.append("Blob : " + Blob.generateSHA1(entry)).append(" : " + entry).append("\n");
             } else {
-                sb.append(entry).append("\n");
+                if (!currentTreeFile.toString().contains(entry)) {
+                    currentTreeFile.append(entry).append("\n");
+                }
             }
         }
-        sb.replace(sb.toString().length() - 1, sb.toString().length(), "");
-        Files.write(Paths.get(pathToWorkSpace + "\\tree"), sb.toString().getBytes());
+        br.close();
+        Files.write(Paths.get(pathToWorkSpace + "\\tree"), currentTreeFile.toString().getBytes());
         generateTreeSHA();
     }
 
@@ -132,13 +156,14 @@ public class Tree {
         Tree tree = new Tree();
         // Add entries to the tree
         tree.add("testFile1.txt");
-        tree.add("testFile2.txt");
-        tree.add("testFile3.txt");
         tree.add("tree : bd1ccec139dead5ee0d8c3a0499b42a7d43ac44b");
-        tree.add("tree : e7d79898d3342fd15daf6ec36f4cb095b52fd976");
 
         // Generate and save the tree blob
         tree.generateBlob();
+
+        // Check if the tree blob file exists in the 'objects' folder
+        File treeBlobFile = new File(Paths.get(Paths.get("objects").toString(), tree.getTreeSha()).toString());
+        System.out.println(treeBlobFile.exists());
 
         System.out.println("Tree SHA1: " + tree.getTreeSha());
 
