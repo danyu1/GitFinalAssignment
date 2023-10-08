@@ -94,9 +94,9 @@ public class Index {
     }
 
     public String format(String valuePair) {
-        String formatted = "blob : ";
+        String formatted = "Blob : ";
         formatted += valuePair.substring(valuePair.lastIndexOf(":") + 1);
-        formatted += valuePair.substring(0, valuePair.lastIndexOf(":") - 1);
+        formatted += " : " + valuePair.substring(0, valuePair.lastIndexOf(":") - 1);
         return formatted;
     }
 
@@ -120,7 +120,7 @@ public class Index {
             currentLine = br.readLine();
             // if the currentline that is read not equal to the key value pair you want to
             // remove then append it to the stringbuilder
-            if (!currentLine.equals(keyValuePair)) {
+            if (!currentLine.contains(keyValuePair.substring(0, keyValuePair.lastIndexOf(":") - 1))) {
                 if (totalBlobs == 1) {
                     sb.append(currentLine);
                 } else {
