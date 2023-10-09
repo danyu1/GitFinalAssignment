@@ -1,4 +1,6 @@
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class Utils {
     static String pathToWorkSpace = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment\\";
@@ -27,6 +29,16 @@ public class Utils {
     public static void deleteDirectory(String f) {
         File file = new File(pathToWorkSpace + f);
         file.delete();
+    }
+
+    public static void cleanFiles() throws Exception {
+        Files.write(Paths.get("index"), "".getBytes());
+        Files.write(Paths.get("tree"), "".getBytes());
+        Files.write(Paths.get("commit"), "".getBytes());
+    }
+
+    public static void createFile(String fileName) throws Exception {
+        (new File(fileName)).createNewFile();
     }
 
 }

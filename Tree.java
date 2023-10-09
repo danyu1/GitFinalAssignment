@@ -145,7 +145,13 @@ public class Tree {
         // Create a StringBuilder to concatenate all entries
         StringBuilder content = new StringBuilder("");
         for (String entry : entries) {
-            content.append(entry).append("\n");
+            // if an entry was added within a directory its full formatted string is already
+            // the entry so 'Blob : ' will be contained withing the string
+            if (!entry.contains("tree : ") && !entry.contains("Blob : ")) {
+                content.append("Blob : ").append(Blob.generateSHA1(entry)).append(" : " + entry + "\n");
+            } else {
+                content.append(entry).append("\n");
+            }
         }
         // Create the blob file in the 'objects' folder
         Path blobPath = Paths.get(Paths.get("objects").toString(), generateTreeSHA());

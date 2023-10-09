@@ -1,3 +1,6 @@
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -40,8 +43,6 @@ public class Commit {
         toPrint.append(this.date + "\n");
         toPrint.append(summary);
         this.pathToCommit = Paths.get(Paths.get("objects").toString(), prevCommit).toString();
-        // update the next line of the previous commit
-        updatePrevNextCommit();
     }
 
     // constructor for the first commit with no parent or next
@@ -64,6 +65,19 @@ public class Commit {
     }
 
     public void save() throws Exception {
+        // generate new hash for the new tree
+        this.tree.generateBlob();
+        this.treeHash = tree.getTreeSha();
+        // must update toPrint stringbuilder
+        Path temp = Paths.get(Paths.get("objects").toString(), prevCommit);
+        this.pathToCommit = temp.toString();
+        // if this is the intial commit there is no need to update the "next" commit of
+        // its previous commit since it didn't have a prevCommit
+        if (!this.prevCommit.equals(""))
+            updatePrevNextCommit();
+        this.toPrint = new StringBuilder("");
+        toPrint.append(this.treeHash + "\n" + this.prevCommit + "\n" + this.nextCommit + "\n" + this.author + "\n"
+                + this.date + "\n" + this.summary);
         // Create the commit file in the 'objects' folder
         Path commitPath = Paths.get(Paths.get("objects").toString(), generateSha1());
         Files.write(commitPath, toPrint.toString().getBytes());
@@ -136,12 +150,7 @@ public class Commit {
         if (Files.exists(pathToCommit)) {
             File commit = new File(Paths.get("objects", commitSHA1).toString());
             BufferedReader br = new BufferedReader(new FileReader(commit));
-            while (br.ready()) {
-                String currentRead = br.readLine();
-                if (currentRead.contains("tree : ") && currentRead.length() == 47) {
-                    commitTreeHash = currentRead;
-                }
-            }
+            commitTreeHash = br.readLine();
             br.close();
         } else {
             throw new Exception("Commit blob couldn't be found, try another hash.");
@@ -151,19 +160,6 @@ public class Commit {
 
     public void addToTree(String fileName) throws Exception {
         this.tree.add(fileName);
-        // generate new hash for the new tree
-        this.tree.generateBlob();
-        this.treeHash = tree.getTreeSha();
-        // must update toPrint stringbuilder
-        Path temp = Paths.get(Paths.get("objects").toString(), prevCommit);
-        this.pathToCommit = temp.toString();
-        // if this is the intial commit there is no need to update the "next" commit of
-        // its previous commit since it didn't have a prevCommit
-        if (!this.prevCommit.equals(""))
-            updatePrevNextCommit();
-        this.toPrint = new StringBuilder("");
-        toPrint.append(this.treeHash + "\n" + this.prevCommit + "\n" + this.nextCommit + "\n" + this.author + "\n"
-                + this.date + "\n" + this.summary);
     }
 
     // read the parentCommit that has the updated "next" value and update this
@@ -184,7 +180,7 @@ public class Commit {
     }
 
     public static void main(String[] args) throws Exception {
-        Index index = new Index();
+        Utils.cleanFiles();
         File testFile1 = new File("testFile1.txt");
         testFile1.createNewFile();
         Files.write(Paths.get("testFile1.txt"), "test commit content 1".getBytes());
@@ -197,21 +193,50 @@ public class Commit {
         File testFile4 = new File("testFile4.txt");
         testFile4.createNewFile();
         Files.write(Paths.get("testFile4.txt"), "test commit content 4".getBytes());
+        File testFile5 = new File("testFile5.txt");
+        testFile5.createNewFile();
+        Files.write(Paths.get("testFile5.txt"), "test commit content 5".getBytes());
+        File testFile6 = new File("testFile6.txt");
+        testFile6.createNewFile();
+        Files.write(Paths.get("testFile6.txt"), "test commit content 6".getBytes());
+        File testFile7 = new File("testFile7.txt");
+        testFile7.createNewFile();
+        Files.write(Paths.get("testFile7.txt"), "test commit content 7".getBytes());
+        File testFile8 = new File("testFile8.txt");
+        testFile8.createNewFile();
+        Files.write(Paths.get("testFile8.txt"), "test commit content 8".getBytes());
 
         File folder1 = new File("folder1");
         folder1.mkdir();
         File subfile = new File(folder1.getPath(), "subfile.txt");
         subfile.createNewFile();
 
-        index.add("testFile1.txt");
-        index.add("testFile2.txt");
+        File folder2 = new File("folder2");
+        folder2.mkdir();
+        File subfile2 = new File(folder2.getPath(), "subfile2.txt");
+        subfile2.createNewFile();
+
         Commit c1 = new Commit("Paco", "initial commit");
+        c1.addToTree(testFile1.getName());
+        c1.addToTree(testFile2.getName());
         c1.save();
 
         Commit c2 = new Commit(c1.generateSha1(), "Paco", "second commit");
-        // c2.addToTree(testFile3.getName());
-        // c2.addToTree(testFile4.getName());
-        // String directorySha = c2.tree.addDirectory(folder1.getName());
+        c2.addToTree(testFile3.getName());
+        c2.addToTree(testFile4.getName());
+        String directorySha = c2.tree.addDirectory(folder1.getName());
         c2.save();
+
+        Commit c3 = new Commit(c2.generateSha1(), "Paco", "third commit");
+        c3.addToTree(testFile5.getName());
+        c3.addToTree(testFile6.getName());
+        c3.save();
+
+        Commit c4 = new Commit(c3.generateSha1(), "Paco", "fourth commit");
+        c4.addToTree(testFile7.getName());
+        c4.addToTree(testFile8.getName());
+        c4.save();
+
+        System.out.println(c2.getCommitTree(c2.generateSha1()));
     }
 }
