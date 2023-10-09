@@ -181,6 +181,55 @@ public class Tree {
         return sb.toString();
     }
 
+    public void deleteOrEdit(String entry) throws Exception {
+        // you are deleting a file
+        File head = new File("head");
+        BufferedReader br = new BufferedReader(new FileReader(head));
+        String shaOfCurrentCommit = br.readLine();
+        br.close();
+        File currentCommit = new File(Paths.get(Paths.get("objects").toString(), shaOfCurrentCommit).toString());
+        BufferedReader br2 = new BufferedReader(new FileReader(currentCommit));
+        String shaOfCurrentTree = br2.readLine();
+        br2.close();
+        // you are deleting
+        if (entry.contains("*deleted*")) {
+            traverseTreeAndDelete(entry, shaOfCurrentTree);
+            // you are editing a file
+        } else if (entry.contains("*edited")) {
+            add("Blob : " + Blob.generateSHA1(entry.substring(9) + " : " + entry.substring(9)));
+            traverseTreeAndDelete(entry, shaOfCurrentTree);
+        } else {
+            throw new Exception("You are not editing or deleting a valid file");
+        }
+    }
+
+    public String traverseTreeAndDelete(String action, String currentTreeSha) throws Exception {
+        String removedFile = "NO FILE WAS REMOVED";
+        File currentTreeFile = new File(Paths.get(Paths.get("objects").toString(), currentTreeSha).toString());
+        BufferedReader br = new BufferedReader(new FileReader(currentTreeFile));
+        StringBuilder sb = new StringBuilder();
+        while (br.ready()) {
+            sb.append(br.readLine() + "\n");
+        }
+        br.close();
+        if (sb.toString().contains(action.substring(10))) {
+            remove(action.substring(10));
+            removedFile = action.substring(10) + " was removed";
+        }
+        // must traverse the next tree if file to delete is not found in current tree
+        else {
+            BufferedReader br2 = new BufferedReader(new FileReader(currentTreeFile));
+            while (br2.ready()) {
+                String currentLine = br2.readLine();
+                if (currentLine.contains("tree : ")) {
+                    traverseTreeAndDelete(action, currentLine.substring(7, 47));
+                }
+            }
+            br2.close();
+        }
+        return removedFile;
+    }
+
     public static void main(String[] args) throws Exception {
         Tree tree = new Tree();
         // // Add entries to the tree
