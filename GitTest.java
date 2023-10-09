@@ -457,4 +457,10 @@ public class GitTest {
             counter++;
         }
     }
+
+    @Test
+    @DisplayName("Test add and edit functionality")
+    public void testAddAndEdit() {
+
+    }
 }

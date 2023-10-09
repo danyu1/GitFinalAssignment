@@ -43,12 +43,22 @@ public class Index {
     // appropriate key:value pair
     public void add(String fileName) throws Exception {
         Path p = Paths.get("index");
-        String SHA1 = Blob.generateSHA1(fileName);
-        if (!keyValuePairs.contains(fileName + " : " + SHA1)) {
-            StringBuilder sb = new StringBuilder("");
+        String SHA1 = "";
+        if (fileName.contains("*deleted*")) {
+            SHA1 = Blob.generateSHA1(fileName.substring(10));
+        } else if (fileName.contains("*edited*")) {
+            SHA1 = Blob.generateSHA1(fileName.substring(9));
+            Blob.createBlob(fileName.substring(9));
+            keyValuePairs.add(fileName + " : " + SHA1);
+            totalBlobs++;
+        } else {
+            SHA1 = Blob.generateSHA1(fileName);
             Blob.createBlob(fileName);
             keyValuePairs.add(fileName + " : " + SHA1);
             totalBlobs++;
+        }
+        if (!keyValuePairs.contains(fileName + " : " + SHA1)) {
+            StringBuilder sb = new StringBuilder("");
             for (int i = 0; i < keyValuePairs.size(); i++) {
                 if (totalBlobs == 1) {
                     sb.append(format(keyValuePairs.get(i)));
