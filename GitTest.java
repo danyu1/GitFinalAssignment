@@ -35,7 +35,7 @@ public class GitTest {
         Index index = new Index();
         Utils.createFile("commit");
         Utils.createFile(TEST_TREE_FILE);
-
+        Utils.createFile("head");
         // create all the test files and folders
 
         Utils.cleanFiles();
@@ -82,6 +82,7 @@ public class GitTest {
         Utils.deleteDirectory("objects");
         Utils.deleteFile(TEST_TREE_FILE);
         Utils.deleteFile("commit");
+        Utils.deleteFile("head");
 
         // delete all the test files and folders
 

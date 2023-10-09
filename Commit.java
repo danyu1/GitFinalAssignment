@@ -22,7 +22,6 @@ public class Commit {
     String summary;
 
     StringBuilder toPrint;
-    static String pathToWorkSpace = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment";
     String pathToCommit;
 
     // constructor for any commit after the first ever commit
@@ -62,6 +61,17 @@ public class Commit {
         toPrint.append(this.author + "\n");
         toPrint.append(this.date + "\n");
         toPrint.append(summary);
+
+        // create the head file
+        File head = new File("head");
+        if (!head.exists())
+            head.createNewFile();
+
+        // create the commit file
+        File commit = new File("commit");
+        if (!commit.exists())
+            commit.createNewFile();
+
     }
 
     public void save() throws Exception {
@@ -83,6 +93,10 @@ public class Commit {
         Files.write(commitPath, toPrint.toString().getBytes());
         // write to the commit file
         Files.write(Paths.get("commit"), toPrint.toString().getBytes());
+        // update the head file
+        File head = new File("head");
+        if (head.exists())
+            Files.write(Paths.get("head"), generateSha1().getBytes());
     }
 
     public String getTreeHash() {
@@ -180,63 +194,6 @@ public class Commit {
     }
 
     public static void main(String[] args) throws Exception {
-        Utils.cleanFiles();
-        File testFile1 = new File("testFile1.txt");
-        testFile1.createNewFile();
-        Files.write(Paths.get("testFile1.txt"), "test commit content 1".getBytes());
-        File testFile2 = new File("testFile2.txt");
-        testFile2.createNewFile();
-        Files.write(Paths.get("testFile2.txt"), "test commit content 2".getBytes());
-        File testFile3 = new File("testFile3.txt");
-        testFile3.createNewFile();
-        Files.write(Paths.get("testFile3.txt"), "test commit content 3".getBytes());
-        File testFile4 = new File("testFile4.txt");
-        testFile4.createNewFile();
-        Files.write(Paths.get("testFile4.txt"), "test commit content 4".getBytes());
-        File testFile5 = new File("testFile5.txt");
-        testFile5.createNewFile();
-        Files.write(Paths.get("testFile5.txt"), "test commit content 5".getBytes());
-        File testFile6 = new File("testFile6.txt");
-        testFile6.createNewFile();
-        Files.write(Paths.get("testFile6.txt"), "test commit content 6".getBytes());
-        File testFile7 = new File("testFile7.txt");
-        testFile7.createNewFile();
-        Files.write(Paths.get("testFile7.txt"), "test commit content 7".getBytes());
-        File testFile8 = new File("testFile8.txt");
-        testFile8.createNewFile();
-        Files.write(Paths.get("testFile8.txt"), "test commit content 8".getBytes());
 
-        File folder1 = new File("folder1");
-        folder1.mkdir();
-        File subfile = new File(folder1.getPath(), "subfile.txt");
-        subfile.createNewFile();
-
-        File folder2 = new File("folder2");
-        folder2.mkdir();
-        File subfile2 = new File(folder2.getPath(), "subfile2.txt");
-        subfile2.createNewFile();
-
-        Commit c1 = new Commit("Paco", "initial commit");
-        c1.addToTree(testFile1.getName());
-        c1.addToTree(testFile2.getName());
-        c1.save();
-
-        Commit c2 = new Commit(c1.generateSha1(), "Paco", "second commit");
-        c2.addToTree(testFile3.getName());
-        c2.addToTree(testFile4.getName());
-        String directorySha = c2.tree.addDirectory(folder1.getName());
-        c2.save();
-
-        Commit c3 = new Commit(c2.generateSha1(), "Paco", "third commit");
-        c3.addToTree(testFile5.getName());
-        c3.addToTree(testFile6.getName());
-        c3.save();
-
-        Commit c4 = new Commit(c3.generateSha1(), "Paco", "fourth commit");
-        c4.addToTree(testFile7.getName());
-        c4.addToTree(testFile8.getName());
-        c4.save();
-
-        System.out.println(c2.getCommitTree(c2.generateSha1()));
     }
 }

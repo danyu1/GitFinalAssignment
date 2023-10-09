@@ -65,7 +65,7 @@ public class Index {
         }
     }
 
-    public void addTree(String directoryName) throws Exception {
+    public void addDirectory(String directoryName) throws Exception {
         File file = new File(directoryName);
         Tree t = new Tree();
         if (file.isDirectory()) {
@@ -163,6 +163,6 @@ public class Index {
         i.add("input.txt");
         // i.add("junit_example_test2.txt");
         i.remove("test.txt");
-        i.addTree("testFiles");
+        i.addDirectory("testFiles");
     }
 }
