@@ -201,35 +201,6 @@ public class Commit {
     }
 
     public static void main(String[] args) throws Exception {
-        Utils.cleanFiles();
-        Files.write(Paths.get("testFile3.txt"), "test commit content 3".getBytes());
-        Files.write(Paths.get("testFile5.txt"), "test commit content 5".getBytes());
-        Commit c1 = new Commit("Paco", "initial commit");
-        c1.addToTree("testFile1.txt");
-        c1.addToTree("testFile2.txt");
-        c1.save();
-
-        Commit c2 = new Commit(c1.generateSha1(), "Paco", "second commit");
-        c2.addToTree("testFile3.txt");
-        c2.addToTree("testFile4.txt");
-        c2.save();
-        Files.write(Paths.get("testFile3.txt"), "new edited content for file 3".getBytes());
-        c2.tree.deleteOrEdit("*edited*testFile3.txt");
-        c2.save();
-
-        Commit c3 = new Commit(c2.generateSha1(), "Paco", "third commit");
-        c3.addToTree("testFile5.txt");
-        c3.addToTree("testFile6.txt");
-        c3.save();
-        c3.tree.deleteOrEdit("*deleted*testFile4.txt");
-        c3.save();
-
-        Files.write(Paths.get("testFile5.txt"), "new edited content for file 5".getBytes());
-        Commit c4 = new Commit(c3.generateSha1(), "Paco", "fourth commit");
-        c4.addToTree("testFile7.txt");
-        c4.addToTree("testFile8.txt");
-        c4.save();
-        c4.tree.deleteOrEdit("*edited*testFile5.txt");
-        c4.save();
+        Utils.deleteAllTestFile();
     }
 }
