@@ -39,40 +39,7 @@ public class GitTest {
         // create all the test files and folders
 
         Utils.cleanFiles();
-        File testFile1 = new File("testFile1.txt");
-        testFile1.createNewFile();
-        Files.write(Paths.get("testFile1.txt"), "test commit content 1".getBytes());
-        File testFile2 = new File("testFile2.txt");
-        testFile2.createNewFile();
-        Files.write(Paths.get("testFile2.txt"), "test commit content 2".getBytes());
-        File testFile3 = new File("testFile3.txt");
-        testFile3.createNewFile();
-        Files.write(Paths.get("testFile3.txt"), "test commit content 3".getBytes());
-        File testFile4 = new File("testFile4.txt");
-        testFile4.createNewFile();
-        Files.write(Paths.get("testFile4.txt"), "test commit content 4".getBytes());
-        File testFile5 = new File("testFile5.txt");
-        testFile5.createNewFile();
-        Files.write(Paths.get("testFile5.txt"), "test commit content 5".getBytes());
-        File testFile6 = new File("testFile6.txt");
-        testFile6.createNewFile();
-        Files.write(Paths.get("testFile6.txt"), "test commit content 6".getBytes());
-        File testFile7 = new File("testFile7.txt");
-        testFile7.createNewFile();
-        Files.write(Paths.get("testFile7.txt"), "test commit content 7".getBytes());
-        File testFile8 = new File("testFile8.txt");
-        testFile8.createNewFile();
-        Files.write(Paths.get("testFile8.txt"), "test commit content 8".getBytes());
-
-        File folder1 = new File("folder1");
-        folder1.mkdir();
-        File subfile = new File(folder1.getPath(), "subfile.txt");
-        subfile.createNewFile();
-
-        File folder2 = new File("folder2");
-        folder2.mkdir();
-        File subfile2 = new File(folder2.getPath(), "subfile2.txt");
-        subfile2.createNewFile();
+        Utils.createAllTestFile();
     }
 
     @AfterEach
@@ -85,26 +52,8 @@ public class GitTest {
         Utils.deleteFile("head");
 
         // delete all the test files and folders
-
-        Files.delete(Paths.get("testFile1.txt"));
-        Files.delete(Paths.get("testFile2.txt"));
-        Files.delete(Paths.get("testFile3.txt"));
-        Files.delete(Paths.get("testFile4.txt"));
-        Files.delete(Paths.get("testFile5.txt"));
-        Files.delete(Paths.get("testFile6.txt"));
-        Files.delete(Paths.get("testFile7.txt"));
-        Files.delete(Paths.get("testFile8.txt"));
-
-        File folder1 = new File("folder1");
-        File subfile = new File(folder1.getPath(), "subfile.txt");
-
-        File folder2 = new File("folder2");
-        File subfile2 = new File(folder2.getPath(), "subfile2.txt");
-
-        Files.delete(Paths.get(Paths.get(folder1.getName()).toString(), subfile.getName()));
-        Files.delete(Paths.get(Paths.get(folder2.getName()).toString(), subfile2.getName()));
-        Files.delete(Paths.get(folder1.getName()));
-        Files.delete(Paths.get(folder2.getName()));
+        Utils.deleteAllTestFile();
+        Utils.cleanFiles();
     }
 
     @Test
@@ -281,6 +230,7 @@ public class GitTest {
     @Test
     @DisplayName("Test commit functionality #1")
     public void testCommit1() throws Exception {
+        Utils.cleanFiles();
         Commit c1 = new Commit("Paco", "initial commit");
         c1.addToTree("testFile1.txt");
         c1.addToTree("testFile2.txt");
@@ -304,7 +254,7 @@ public class GitTest {
     @Test
     @DisplayName("Test commit functionality #2")
     public void testCommit2() throws Exception {
-
+        Utils.cleanFiles();
         File folder1 = new File("folder1");
         folder1.mkdir();
         File subfile = new File(folder1.getPath(), "subfile.txt");
@@ -353,7 +303,7 @@ public class GitTest {
     @Test
     @DisplayName("Test commit functionality #3")
     public void testCommit3() throws Exception {
-
+        Utils.cleanFiles();
         Commit c1 = new Commit("Paco", "initial commit");
         c1.addToTree("testFile1.txt");
         c1.addToTree("testFile2.txt");
@@ -449,7 +399,17 @@ public class GitTest {
         }
         treeReader.close();
         int counter = 0;
-        String[] expectedContents = { "tree : 3e6c06b1a28a035e21aa0a736ef80afadc43122c",
+        String[] expectedContents = { "Blob : e58e1df02773bf212dee7a6082d2acc323ff4b02 : testFile1.txt",
+                "Blob : d70b62c0f22581d040ff8e39ca34375c9a45647c : testFile2.txt",
+                "tree : da39a3ee5e6b4b0d3255bfef95601890afd80709",
+                "Blob : fb74d67d3b5ed98eb6cbe66380a337a724a7778c : testFile3.txt",
+                "Blob : 9f7d255ff5413910591c7dd8cb8cdf3fbb465c24 : testFile4.txt",
+                "Blob : da39a3ee5e6b4b0d3255bfef95601890afd80709 : subfile.txt",
+                "tree : 10a34637ad661d98ba3344717656fcc76209c2f8",
+                "Blob : 2693be5876d9e17c4d16189f9e29555f1b99e622 : testFile5.txt",
+                "Blob : 517f59bbce3538183e101bd0a4f9d1fda498a95b : testFile6.txt",
+                "Blob : da39a3ee5e6b4b0d3255bfef95601890afd80709 : subfile2.txt",
+                "tree : 3e6c06b1a28a035e21aa0a736ef80afadc43122c",
                 "Blob : 4953c2b1913260668adbe0067a6d87797d74a39e : testFile7.txt",
                 "Blob : 82fa94ce3a531cbe5d17cb47089aa055f4e12b82 : testFile8.txt" };
         for (String treeLine : treeContents) {
@@ -460,7 +420,55 @@ public class GitTest {
 
     @Test
     @DisplayName("Test add and edit functionality")
-    public void testAddAndEdit() {
+    public void testAddAndEdit() throws Exception {
+        Utils.cleanFiles();
+        Files.write(Paths.get("testFile3.txt"), "test commit content 3".getBytes());
+        Files.write(Paths.get("testFile5.txt"), "test commit content 5".getBytes());
+        Commit c1 = new Commit("Paco", "initial commit");
+        c1.addToTree("testFile1.txt");
+        c1.addToTree("testFile2.txt");
+        c1.save();
 
+        Commit c2 = new Commit(c1.generateSha1(), "Paco", "second commit");
+        c2.addToTree("testFile3.txt");
+        c2.addToTree("testFile4.txt");
+        c2.save();
+        Files.write(Paths.get("testFile3.txt"), "new edited content for file 3".getBytes());
+        c2.tree.deleteOrEdit("*edited*testFile3.txt");
+        c2.save();
+
+        Commit c3 = new Commit(c2.generateSha1(), "Paco", "third commit");
+        c3.addToTree("testFile5.txt");
+        c3.addToTree("testFile6.txt");
+        c3.save();
+        c3.tree.deleteOrEdit("*deleted*testFile4.txt");
+        c3.save();
+
+        Files.write(Paths.get("testFile5.txt"), "new edited content for file 5".getBytes());
+        Commit c4 = new Commit(c3.generateSha1(), "Paco", "fourth commit");
+        c4.addToTree("testFile7.txt");
+        c4.addToTree("testFile8.txt");
+        c4.save();
+        c4.tree.deleteOrEdit("*edited*testFile5.txt");
+        c4.save();
+        // test for the expected contents in the current tree file of the current commit
+        // testfile4 should be gone, testfile 5 and 3 should be edited
+        String[] expectedContents = { "Blob : e58e1df02773bf212dee7a6082d2acc323ff4b02 : testFile1.txt",
+                "Blob : d70b62c0f22581d040ff8e39ca34375c9a45647c : testFile2.txt",
+                "tree : da39a3ee5e6b4b0d3255bfef95601890afd80709",
+                "Blob : 9b86abefd1d050e7b004ce1e2bec9cd0005be1fa : testFile3.txt",
+                "tree : 10a34637ad661d98ba3344717656fcc76209c2f8",
+                "Blob : 517f59bbce3538183e101bd0a4f9d1fda498a95b : testFile6.txt",
+                "tree : 3e6c06b1a28a035e21aa0a736ef80afadc43122c",
+                "Blob : 4953c2b1913260668adbe0067a6d87797d74a39e : testFile7.txt",
+                "Blob : 82fa94ce3a531cbe5d17cb47089aa055f4e12b82 : testFile8.txt",
+                "Blob : c74e1cc818fb612e7d544f60295f98f7b854f359 : testFile5.txt" };
+        File treeFile = new File("tree");
+        BufferedReader br = new BufferedReader(new FileReader(treeFile));
+        int counter = 0;
+        while (br.ready()) {
+            assertEquals(expectedContents[counter], br.readLine());
+            counter++;
+        }
     }
 }

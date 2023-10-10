@@ -35,17 +35,38 @@ public class Tree {
     }
 
     public void remove(String entry) throws Exception {
+        updateEntries();
         // to prevent concurrent modification error
         if (entries.size() == 1) {
             if (entries.get(0).contains(entry))
                 entries.remove(0);
         } else {
-            for (String currentEntry : entries) {
-                if (currentEntry.contains(entry))
-                    entries.remove(currentEntry);
+            for (int i = 0; i < entries.size(); i++) {
+                if (entries.get(i).contains(entry)) {
+                    entries.remove(entries.get(i));
+                }
             }
         }
         updateTreeFileRemove(entry);
+    }
+
+    public void updateEntries() throws Exception {
+        File treeFile = new File("tree");
+        if (treeFile.exists()) {
+            BufferedReader br = new BufferedReader(new FileReader(treeFile));
+            String currentLine = "";
+            while (br.ready()) {
+                currentLine = br.readLine();
+                if (currentLine.contains("tree : ") && !entries.contains(currentLine)) {
+                    entries.add(currentLine);
+                } else {
+                    if (currentLine.contains("Blob : ")
+                            && !entries.contains(currentLine.substring(currentLine.lastIndexOf(":") + 2))) {
+                        entries.add(currentLine.substring(currentLine.lastIndexOf(":") + 2));
+                    }
+                }
+            }
+        }
     }
 
     public static String addDirectory(String directoryPath) throws Exception {
@@ -144,16 +165,12 @@ public class Tree {
     public void generateBlob() throws Exception {
         // Create a StringBuilder to concatenate all entries
         StringBuilder content = new StringBuilder("");
-        for (String entry : entries) {
-            // if an entry was added within a directory its full formatted string is already
-            // the entry so 'Blob : ' will be contained withing the string
-            if (!entry.contains("tree : ") && !entry.contains("Blob : ")) {
-                content.append("Blob : ").append(Blob.generateSHA1(entry)).append(" : " + entry + "\n");
-            } else {
-                content.append(entry).append("\n");
-            }
+        File treeFile = new File("tree");
+        BufferedReader br = new BufferedReader(new FileReader(treeFile));
+        while (br.ready()) {
+            content.append(br.readLine() + "\n");
         }
-        // Create the blob file in the 'objects' folder
+        br.close();
         Path blobPath = Paths.get(Paths.get("objects").toString(), generateTreeSHA());
         File treeObject = new File(blobPath.toString());
         treeObject.createNewFile();
@@ -195,9 +212,12 @@ public class Tree {
         if (entry.contains("*deleted*")) {
             traverseTreeAndDelete(entry, shaOfCurrentTree);
             // you are editing a file
-        } else if (entry.contains("*edited")) {
-            add("Blob : " + Blob.generateSHA1(entry.substring(9) + " : " + entry.substring(9)));
+        } else if (entry.contains("*edited*")) {
             traverseTreeAndDelete(entry, shaOfCurrentTree);
+            String shaOfEntry = Blob.generateSHA1(entry.substring(8));
+            String toAdd = "Blob : " + shaOfEntry + " : " + entry.substring(8);
+            Blob.createBlob(entry.substring(8));
+            add(toAdd);
         } else {
             throw new Exception("You are not editing or deleting a valid file");
         }
@@ -212,9 +232,9 @@ public class Tree {
             sb.append(br.readLine() + "\n");
         }
         br.close();
-        if (sb.toString().contains(action.substring(10))) {
-            remove(action.substring(10));
-            removedFile = action.substring(10) + " was removed";
+        if (sb.toString().contains(action.substring(9))) {
+            remove(action.substring(9));
+            removedFile = action.substring(9) + " was removed";
         }
         // must traverse the next tree if file to delete is not found in current tree
         else {
