@@ -1,4 +1,5 @@
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedReader;
@@ -132,36 +133,41 @@ public class Commit {
     public String createTree() throws Exception {
         this.tree = new Tree();
         // read index contents and add them all to the tree
-        File treeFile = new File("tree");
-        BufferedReader br = new BufferedReader(new FileReader(treeFile));
-        while (br.ready()) {
-            String toAdd = br.readLine();
-            if (!toAdd.contains("*edited*") && !toAdd.contains("*deleted*")) {
-                if (toAdd.contains("\n")) {
-                    toAdd.substring(0, toAdd.length() - 2);
+        if (prevCommit != "") {
+            File treeFile = new File("tree");
+            BufferedReader br = new BufferedReader(new FileReader(treeFile));
+            while (br.ready()) {
+                String toAdd = br.readLine();
+                if (!toAdd.contains("*edited*") && !toAdd.contains("*deleted*")) {
+                    if (toAdd.contains("\n")) {
+                        toAdd.substring(0, toAdd.length() - 2);
+                    }
+                    tree.add(toAdd);
                 }
-                tree.add(toAdd);
+                // the current line is an edited or deleted file
+                else {
+                    tree.traverseTreeAndDelete(toAdd.substring(toAdd.lastIndexOf(":") + 2), prevCommit);
+                }
             }
-            // the current line is an edited or deleted file
-            else {
-                tree.traverseTreeAndDelete(toAdd.substring(toAdd.lastIndexOf(":") + 2), prevCommit);
+            br.close();
+            String toOverride = "";
+            Files.write(Paths.get(treeFile.getName()), toOverride.getBytes());
+            this.tree.generateBlob();
+            this.treeHash = tree.getTreeSha();
+            // if the current commit has a previous then update index with the previous tree
+            if (!prevCommit.equals("")) {
+                File prevCommitFile = new File(Paths.get(Paths.get("objects").toString(), prevCommit).toString());
+                BufferedReader br2 = new BufferedReader(new FileReader(prevCommitFile));
+                Files.write(Paths.get(Paths.get("objects").toString(), prevCommit),
+                        ("tree : " + br.readLine()).getBytes());
+                br2.close();
             }
+            String toPrint = "tree : " + treeHash;
+            Files.write(Paths.get(treeFile.getName()), toPrint.getBytes());
+            return this.treeHash;
         }
-        br.close();
-        String toOverride = "";
-        Files.write(Paths.get(treeFile.getName()), toOverride.getBytes());
         this.tree.generateBlob();
-        this.treeHash = tree.getTreeSha();
-        // if the current commit has a previous then update index with the previous tree
-        if (!prevCommit.equals("")) {
-            File prevCommitFile = new File(Paths.get(Paths.get("objects").toString(), prevCommit).toString());
-            BufferedReader br2 = new BufferedReader(new FileReader(prevCommitFile));
-            Files.write(Paths.get(Paths.get("objects").toString(), prevCommit), ("tree : " + br.readLine()).getBytes());
-            br2.close();
-        }
-        String toPrint = "tree : " + treeHash;
-        Files.write(Paths.get(treeFile.getName()), toPrint.getBytes());
-        return this.treeHash;
+        return tree.getTreeSha();
     }
 
     public String getCommitTree(String commitSHA1) throws Exception {
@@ -201,6 +207,6 @@ public class Commit {
     }
 
     public static void main(String[] args) throws Exception {
-        Utils.deleteAllTestFile();
+
     }
 }

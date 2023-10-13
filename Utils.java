@@ -76,6 +76,10 @@ public class Utils {
         folder2.mkdir();
         File subfile2 = new File(folder2.getPath(), "subfile2.txt");
         subfile2.createNewFile();
+
+        File objects = new File("objects");
+        objects.mkdir();
+
     }
 
     public static void deleteAllTestFile() throws Exception {

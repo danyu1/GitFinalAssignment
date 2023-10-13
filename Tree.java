@@ -7,9 +7,8 @@ import java.security.*;
 import java.util.*;
 
 public class Tree {
-    static String pathToWorkSpace = "C:\\Users\\danie\\OneDrive\\Desktop\\Topics Repos\\GitFinalAssignment";
 
-    private List<String> entries = new ArrayList<>();
+    public static List<String> entries = new ArrayList<>();
     private String sha1;
     private String directorySha1;
 
@@ -24,12 +23,26 @@ public class Tree {
     public void add(String fileName) throws Exception {
         File fileToAdd = new File(fileName);
         if (fileToAdd.exists()) {
-            entries.add(fileName);
-            updateTreeFileAdd("");
+            if (entries.size() == 0) {
+                entries.add(fileName);
+                Blob.createBlob(fileName);
+                updateTreeFileAdd("");
+            } else {
+                for (int i = 0; i < entries.size(); i++) {
+                    if (!entries.get(i).contains(fileName)) {
+                        entries.add(fileName);
+                        Blob.createBlob(fileName);
+                        updateTreeFileAdd("");
+                        break;
+                    }
+                }
+            }
         } else {
             if (fileName.contains("Blob : ") || fileName.contains("tree : ")) {
-                entries.add(fileName);
-                updateTreeFileAdd(fileName);
+                if (!entries.contains(fileName)) {
+                    entries.add(fileName);
+                    updateTreeFileAdd(fileName);
+                }
             }
         }
     }
@@ -66,6 +79,7 @@ public class Tree {
                     }
                 }
             }
+            br.close();
         }
     }
 
@@ -104,7 +118,7 @@ public class Tree {
     public void updateTreeFileAdd(String fileName) throws Exception {
         StringBuilder currentTreeFile = new StringBuilder("");
         BufferedReader br = new BufferedReader(
-                new FileReader(new File(Paths.get(pathToWorkSpace + "\\tree").toString())));
+                new FileReader(new File(Paths.get("tree").toString())));
         while (br.ready()) {
             currentTreeFile.append(br.readLine() + "\n");
         }
@@ -123,14 +137,14 @@ public class Tree {
                 }
             }
         }
-        Files.write(Paths.get(pathToWorkSpace + "\\tree"), currentTreeFile.toString().getBytes());
+        Files.write(Paths.get("tree"), currentTreeFile.toString().getBytes());
         generateTreeSHA();
     }
 
     public void updateTreeFileRemove(String toRemove) throws Exception {
         StringBuilder currentTreeFile = new StringBuilder("");
         BufferedReader br = new BufferedReader(
-                new FileReader(new File(Paths.get(pathToWorkSpace + "\\tree").toString())));
+                new FileReader(new File(Paths.get("tree").toString())));
         String currentLine = "";
         while (br.ready()) {
             currentLine = br.readLine();
@@ -139,7 +153,7 @@ public class Tree {
         }
 
         br.close();
-        Files.write(Paths.get(pathToWorkSpace + "\\tree"), currentTreeFile.toString().getBytes());
+        Files.write(Paths.get("tree"), currentTreeFile.toString().getBytes());
         generateTreeSHA();
     }
 
@@ -248,6 +262,15 @@ public class Tree {
             br2.close();
         }
         return removedFile;
+    }
+
+    public static boolean containsBlob(String fileName) {
+        for (String entry : entries) {
+            if (entry.contains(fileName))
+                ;
+            return true;
+        }
+        return false;
     }
 
     public static void main(String[] args) throws Exception {
