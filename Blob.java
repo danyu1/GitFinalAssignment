@@ -72,6 +72,7 @@ public class Blob {
     // New file path that accesses objects folder which can access SHA1 file
     // Create a new file with the SHA-1 hash as the filename inside 'objects' folder
     public static void createBlob(String fileName) throws Exception {
+        createObjectsFolder();
         File originalFile = new File(Paths.get(fileName).toString());
         StringBuilder contents = new StringBuilder();
         BufferedReader br = new BufferedReader(new FileReader(originalFile));
@@ -85,6 +86,7 @@ public class Blob {
     }
 
     public static void createBlobWithPath(String pathToBlob) throws Exception {
+        createObjectsFolder();
         File originalFile = new File(pathToBlob);
         StringBuilder contents = new StringBuilder();
         BufferedReader br = new BufferedReader(new FileReader(originalFile));
@@ -97,6 +99,13 @@ public class Blob {
         blob.createNewFile();
         Files.write(objectFilePath, contents.toString().getBytes());
         System.out.println("New file created with SHA-1 hash as filename: " + objectFilePath);
+    }
+
+    public static void createObjectsFolder() {
+        File objects = new File("objects");
+        if (!Files.exists(Paths.get("objects"))) {
+            objects.mkdir();
+        }
     }
 
     public static void main(String[] args) throws Exception {

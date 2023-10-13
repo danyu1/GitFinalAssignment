@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class BlobTest {
@@ -33,6 +34,11 @@ public class BlobTest {
         pw2.write("some content for file 2");
         pw1.close();
         pw2.close();
+    }
+
+    @BeforeEach
+    public void cleanFiles () throws Exception{
+        Utils.cleanFiles();
     }
 
     @AfterAll

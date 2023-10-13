@@ -32,9 +32,9 @@ public class Utils {
     }
 
     public static void cleanFiles() throws Exception {
-        Files.write(Paths.get("index"), "".getBytes());
         Files.write(Paths.get("tree"), "".getBytes());
         Files.write(Paths.get("commit"), "".getBytes());
+        Files.write(Paths.get("head"), "".getBytes());
     }
 
     public static void createFile(String fileName) throws Exception {

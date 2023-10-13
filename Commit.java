@@ -132,8 +132,8 @@ public class Commit {
     public String createTree() throws Exception {
         this.tree = new Tree();
         // read index contents and add them all to the tree
-        File indexFile = new File("index");
-        BufferedReader br = new BufferedReader(new FileReader(indexFile));
+        File treeFile = new File("tree");
+        BufferedReader br = new BufferedReader(new FileReader(treeFile));
         while (br.ready()) {
             String toAdd = br.readLine();
             if (!toAdd.contains("*edited*") && !toAdd.contains("*deleted*")) {
@@ -149,7 +149,7 @@ public class Commit {
         }
         br.close();
         String toOverride = "";
-        Files.write(Paths.get(indexFile.getName()), toOverride.getBytes());
+        Files.write(Paths.get(treeFile.getName()), toOverride.getBytes());
         this.tree.generateBlob();
         this.treeHash = tree.getTreeSha();
         // if the current commit has a previous then update index with the previous tree
@@ -160,7 +160,7 @@ public class Commit {
             br2.close();
         }
         String toPrint = "tree : " + treeHash;
-        Files.write(Paths.get(indexFile.getName()), toPrint.getBytes());
+        Files.write(Paths.get(treeFile.getName()), toPrint.getBytes());
         return this.treeHash;
     }
 
