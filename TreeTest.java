@@ -13,6 +13,7 @@ import java.util.List;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -38,6 +39,11 @@ public class TreeTest {
                 pw2.write("some content for file 2");
                 pw1.close();
                 pw2.close();
+        }
+
+        @BeforeEach
+        public void cleanFiles () throws Exception{
+                Utils.cleanFiles();;
         }
 
         @AfterAll
@@ -160,7 +166,7 @@ public class TreeTest {
                 // assert that the tree file has removed the correct blob if the first blob was
                 // removed than the first line of the file should contain the second file
                 // created
-                assertEquals("junit_example_test2.txt",
+                assertEquals("Blob : 50d4b41eed4faffe212d8cf6ec89d7889dfeff9e : junit_example_test2.txt",
                                 br.readLine());
                 br.close();
 
