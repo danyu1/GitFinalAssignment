@@ -187,7 +187,7 @@ public class GitTest {
         assertEquals("", br2.readLine());
         br2.close();
         // the object created by the add directory method should have this sha
-        assertEquals("acfa4f522432981f55a0f341032313f8be4cad96", directorySha);
+        assertEquals("2cb662477a2a14dc76a2b8facbccc8e23f80b00f", directorySha);
     }
 
     @Test
@@ -242,9 +242,9 @@ public class GitTest {
         assertNotEquals("", br2.readLine());
         br2.close();
         // the object created by the add directory method should have this sha
-        assertEquals("acfa4f522432981f55a0f341032313f8be4cad96", directorySha);
+        assertEquals("2cb662477a2a14dc76a2b8facbccc8e23f80b00f", directorySha);
         // assert the correct tree hash
-        assertEquals("acfa4f522432981f55a0f341032313f8be4cad96", c2.getCommitTree(c2.generateSha1()));
+        assertEquals("2cb662477a2a14dc76a2b8facbccc8e23f80b00f", c2.getCommitTree(c2.generateSha1()));
 
         Path commitFile3 = Paths.get("objects", c3.generateSha1());
         // the sha1 exists

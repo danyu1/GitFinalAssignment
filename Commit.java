@@ -170,7 +170,7 @@ public class Commit {
         return tree.getTreeSha();
     }
 
-    public String getCommitTree(String commitSHA1) throws Exception {
+    public static String getCommitTree(String commitSHA1) throws Exception {
         Path pathToCommit = Paths.get("objects", commitSHA1);
         String commitTreeHash = "A commit was never found";
         if (Files.exists(pathToCommit)) {
@@ -206,7 +206,60 @@ public class Commit {
         br.close();
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void checkout(String SHAOfCommit) throws Exception {
+        File currentState = new File("newCurrentState");
+        if (!currentState.exists())
+            currentState.mkdir();
+        reconstruct(getCommitTree(SHAOfCommit), Paths.get("newCurrentState").toString());
+    }
 
+    public static void reconstruct(String treeHash, String pathToCurrentDirectory) throws Exception {
+        BufferedReader br = new BufferedReader(
+                new FileReader(new File(Paths.get(Paths.get("objects").toString(), treeHash).toString())));
+        String currentLine = "";
+        while (br.ready()) {
+            currentLine = br.readLine();
+            if (currentLine.contains("tree : ")) {
+                String newCurrentPath = pathToCurrentDirectory + "\\"
+                        + currentLine.substring(currentLine.lastIndexOf(":") + 2);
+                File subDirectory = new File(newCurrentPath);
+                subDirectory.mkdir();
+                reconstruct(currentLine.substring(7, 47), newCurrentPath);
+            } else if (currentLine.contains("Blob : ")) {
+                File f = new File(
+                        pathToCurrentDirectory + "\\" + currentLine.substring(currentLine.lastIndexOf(":") + 2));
+                File oldFile = new File(Paths.get(currentLine.substring(currentLine.lastIndexOf(":") + 2)).toString());
+                if (oldFile.exists()) {
+                    f.createNewFile();
+                    BufferedReader subbr = new BufferedReader(new FileReader(oldFile));
+                    StringBuilder contents = new StringBuilder();
+                    while (subbr.ready()) {
+                        contents.append(subbr.readLine());
+                    }
+                    Files.write(Paths.get(Paths.get(pathToCurrentDirectory).toString(), f.getName()),
+                            contents.toString().getBytes());
+                    subbr.close();
+                }
+            }
+        }
+        br.close();
+    }
+
+    public static void main(String[] args) throws Exception {
+        Utils.createAllTestFile();
+        Utils.cleanFiles();
+        Commit c1 = new Commit("Paco", "initial commit");
+        c1.addToTree("testFile1.txt");
+        c1.addToTree("testFile2.txt");
+        c1.save();
+
+        Commit c2 = new Commit(c1.generateSha1(), "Paco", "second commit");
+        c2.addToTree("testFile3.txt");
+        c2.addToTree("testFile4.txt");
+        String directorySha = c2.tree.addDirectory("folder1");
+        c2.save();
+
+        checkout(c2.generateSha1());
+        Utils.deleteAllTestFile();
     }
 }
